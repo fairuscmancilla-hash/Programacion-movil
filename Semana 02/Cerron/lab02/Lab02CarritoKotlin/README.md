@@ -22,4 +22,4 @@ En cambio, cantidad se declara con var porque puede cambiar durante el uso del c
  Si intentara cambiar el precio de un producto después de haberlo creado, Kotlin mostraría un error porque precio fue declarado con val y, por lo tanto, no puede reasignarse.
 
 
-![Resultado del carrito](Consola.png)
+![Resultado del carrito](nueva consola.png)
