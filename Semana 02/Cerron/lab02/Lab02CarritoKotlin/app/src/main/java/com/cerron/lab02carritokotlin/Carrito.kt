@@ -94,4 +94,12 @@ fun main() {
 
     println(String.format("Descuento aplicado: S/ %.2f", descuento))
     println(String.format("TOTAL CON DESCUENTO: S/ %.2f", totalConDescuento))
+
+    val buscado = carrito.find { it.nombre == "Laptop HP" }
+
+    if (buscado != null) {
+        println("Producto encontrado: ${buscado.nombre}")
+    } else {
+        println("Producto no encontrado")
+    }
 }
