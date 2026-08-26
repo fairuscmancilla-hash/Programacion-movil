@@ -102,4 +102,18 @@ fun main() {
     } else {
         println("Producto no encontrado")
     }
+    carrito.removeIf { it.nombre == "Teclado" }
+
+    println()
+    println("Producto eliminado: Teclado")
+
+    mostrarDetalle(carrito)
+
+    val nuevoSubtotal = calcularSubtotal(carrito)
+    val nuevoIGV = calcularIGV(nuevoSubtotal)
+    val nuevoTotal = calcularTotal(nuevoSubtotal, nuevoIGV)
+
+    println(String.format("%-20s S/ %8.2f", "Subtotal actualizado:", nuevoSubtotal))
+    println(String.format("%-20s S/ %8.2f", "IGV actualizado (18%):", nuevoIGV))
+    println(String.format("%-20s S/ %8.2f", "TOTAL actualizado:", nuevoTotal))
 }
