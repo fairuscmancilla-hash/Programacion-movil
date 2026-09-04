@@ -321,7 +321,7 @@ fun ResultadoCard(
                     "Promedio final: %.2f".format(promedioFinal)
                 },
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
+                fontSize = 19.sp
             )
 
             if (redondeado) {
