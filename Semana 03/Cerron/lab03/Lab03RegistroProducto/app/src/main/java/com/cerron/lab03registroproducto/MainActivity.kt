@@ -38,7 +38,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-
             Lab03RegistroProductoTheme {
 
                 Scaffold(
@@ -60,7 +59,9 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
     var nombre by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
+
     var mostrarResumen by remember { mutableStateOf(false) }
+    var mostrarError by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -79,22 +80,16 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.outline
         )
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+        Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
-            label = {
-                Text("Nombre del producto")
-            },
+            label = { Text("Nombre del producto") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -103,44 +98,71 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             OutlinedTextField(
                 value = precio,
                 onValueChange = { precio = it },
-                label = {
-                    Text("Precio (S/)")
-                },
+                label = { Text("Precio (S/)") },
                 modifier = Modifier.weight(1f)
             )
 
-            Spacer(
-                modifier = Modifier.width(16.dp)
-            )
+            Spacer(modifier = Modifier.width(16.dp))
 
             OutlinedTextField(
                 value = cantidad,
                 onValueChange = { cantidad = it },
-                label = {
-                    Text("Cantidad")
-                },
+                label = { Text("Cantidad") },
                 modifier = Modifier.weight(1f)
             )
         }
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                mostrarResumen = true
+
+                if (
+                    nombre.isBlank() ||
+                    precio.isBlank() ||
+                    cantidad.isBlank()
+                ) {
+                    mostrarError = true
+                    mostrarResumen = false
+                } else {
+                    mostrarError = false
+                    mostrarResumen = true
+                }
+
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("AGREGAR PRODUCTO")
         }
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(
+            onClick = {
+                nombre = ""
+                precio = ""
+                cantidad = ""
+                mostrarResumen = false
+                mostrarError = false
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("LIMPIAR")
+        }
+
+        if (mostrarError) {
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Debe completar todos los campos",
+                color = Color.Red
+            )
+        }
 
         if (mostrarResumen) {
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             val precioNum = precio.toDoubleOrNull() ?: 0.0
             val cantidadNum = cantidad.toIntOrNull() ?: 0
@@ -178,9 +200,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                 }
             }
 
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "✓ Producto registrado correctamente",
