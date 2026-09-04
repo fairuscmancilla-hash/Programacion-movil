@@ -10,11 +10,11 @@ Al presionar el botón **AGREGAR PRODUCTO**, la aplicación muestra una tarjeta 
 
 ## Captura 1 - Formulario vacío
 
-![Formulario vacío](captura1.png)
+![Formulario vacío](./captura1.png)
 
 ## Captura 2 - Producto registrado
 
-![Producto registrado](captura2.png)
+![Producto registrado](./captura2.png)
 
 ## ¿Qué pasaría si declaras las variables de los campos SIN remember?
 
