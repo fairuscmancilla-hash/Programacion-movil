@@ -88,7 +88,7 @@ fun RegistroNotasScreen() {
             )
 
             Text(
-                "Desliza para asignar cada nota (0 a 20)",
+                "Desliza para asignar las notas de 0 a 20",
                 fontSize = 12.sp,
                 color = Color.Gray
             )
