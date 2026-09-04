@@ -1,25 +1,5 @@
-# Lab03 - Registro de Producto con Jetpack Compose
+## Mejora con IA
 
-## Estudiante
-Yajaira Cerrón Mancilla
-
-## Descripción
-Aplicación desarrollada con Jetpack Compose para registrar un producto ingresando nombre, precio y cantidad.
-
-Al presionar el botón **AGREGAR PRODUCTO**, la aplicación muestra una tarjeta con el resumen del producto y calcula automáticamente el importe total multiplicando el precio por la cantidad.
-
-## Captura 1 - Formulario vacío
-
-![Formulario vacío](captura1.png)
-
-## Captura 2 - Producto registrado
-
-![Producto registrado](captura2.png)
-
-## ¿Qué pasaría si declaras las variables de los campos SIN remember?
-
-Si las variables se declaran sin `remember`, Compose no conservaría correctamente los valores durante las recomposiciones.
-
-Cuando el usuario escriba en un `TextField`, la interfaz puede volver a dibujarse. Sin `remember`, el valor podría volver a su estado inicial y el texto ingresado no se mantendría.
-
-`remember` permite conservar el estado mientras el composable permanece en la composición.
+| Prompt que usé | Qué generó Gemini | Qué acepté o corregí (y por qué) |
+|---|---|---|
+| Agrega validación de campos vacíos en `PantallaRegistro`. Si falta un dato al presionar AGREGAR PRODUCTO, muestra un mensaje de error en rojo en lugar de la Card. También agrega un botón LIMPIAR que vacíe nombre, precio y cantidad. No cambies la estructura principal de la pantalla. | Se agregó una variable de estado para mostrar errores, una validación de campos vacíos en el botón AGREGAR PRODUCTO y un botón LIMPIAR que reinicia los campos y oculta el resumen. | Acepté la validación de campos vacíos y el botón LIMPIAR. Después corregí la lógica para validar también que precio sea un número válido y cantidad sea un número entero, evitando registrar valores como letras. |
