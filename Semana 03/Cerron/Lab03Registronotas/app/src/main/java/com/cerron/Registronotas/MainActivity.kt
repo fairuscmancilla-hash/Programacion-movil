@@ -164,7 +164,7 @@ fun RegistroNotasScreen() {
                 Text("Confirmo que las notas son correctas")
             }
 
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Button(
                 onClick = {
