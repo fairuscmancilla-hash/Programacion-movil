@@ -80,16 +80,22 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.outline
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
-            label = { Text("Nombre del producto") },
+            label = {
+                Text("Nombre del producto")
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -98,24 +104,35 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             OutlinedTextField(
                 value = precio,
                 onValueChange = { precio = it },
-                label = { Text("Precio (S/)") },
+                label = {
+                    Text("Precio (S/)")
+                },
                 modifier = Modifier.weight(1f)
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(
+                modifier = Modifier.width(16.dp)
+            )
 
             OutlinedTextField(
                 value = cantidad,
                 onValueChange = { cantidad = it },
-                label = { Text("Cantidad") },
+                label = {
+                    Text("Cantidad")
+                },
                 modifier = Modifier.weight(1f)
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         Button(
             onClick = {
+
+                val precioValido = precio.toDoubleOrNull()
+                val cantidadValida = cantidad.toIntOrNull()
 
                 if (
                     nombre.isBlank() ||
@@ -124,18 +141,25 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                 ) {
                     mostrarError = true
                     mostrarResumen = false
+                } else if (
+                    precioValido == null ||
+                    cantidadValida == null
+                ) {
+                    mostrarError = true
+                    mostrarResumen = false
                 } else {
                     mostrarError = false
                     mostrarResumen = true
                 }
-
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("AGREGAR PRODUCTO")
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
 
         Button(
             onClick = {
@@ -152,17 +176,21 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
 
         if (mostrarError) {
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
             Text(
-                text = "Debe completar todos los campos",
+                text = "Completa correctamente todos los campos",
                 color = Color.Red
             )
         }
 
         if (mostrarResumen) {
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
 
             val precioNum = precio.toDoubleOrNull() ?: 0.0
             val cantidadNum = cantidad.toIntOrNull() ?: 0
@@ -185,7 +213,8 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                     )
 
                     Text(
-                        text = "Precio: S/ " + String.format("%.2f", precioNum)
+                        text = "Precio: S/ " +
+                                String.format("%.2f", precioNum)
                     )
 
                     Text(
@@ -193,14 +222,17 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                     )
 
                     Text(
-                        text = "Importe total: S/ " + String.format("%.2f", importe),
+                        text = "Importe total: S/ " +
+                                String.format("%.2f", importe),
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
             Text(
                 text = "✓ Producto registrado correctamente",
