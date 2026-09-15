@@ -56,6 +56,12 @@ fun TemperatureDisplay() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Text(
+            text = "Control de temperatura",
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         Text(
             text = "Temperatura: $temperatura °C",
