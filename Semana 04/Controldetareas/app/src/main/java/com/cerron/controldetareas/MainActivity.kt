@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.Checkbox
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,14 +115,36 @@ fun PantallaTareas() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
+                Checkbox(
+                    checked = tarea.completada,
+                    onCheckedChange = { completada ->
+
+                        val indice = listaTareas.indexOf(tarea)
+
+                        if (indice != -1) {
+                            listaTareas[indice] =
+                                listaTareas[indice].copy(
+                                    completada = completada
+                                )
+                        }
+                    }
+                )
 
                 Text(
                     text = tarea.texto,
                     modifier = Modifier.weight(1f)
                 )
+
+                Button(
+                    onClick = {
+                        listaTareas.remove(tarea)
+                    }
+                ) {
+                    Text("Eliminar")
+                }
             }
         }
     }
