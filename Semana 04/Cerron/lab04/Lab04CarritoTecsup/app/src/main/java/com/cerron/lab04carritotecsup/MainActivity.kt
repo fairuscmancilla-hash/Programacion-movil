@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
 
 class MainActivity : ComponentActivity() {
@@ -118,9 +120,16 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
             Text("AGREGAR")
         }
 
-        Text(
-            text = "Productos: ${productos.size}"
-        )
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(productos) { producto ->
+                Text(
+                    text = "${producto.nombre} - S/ %.2f".format(producto.precio)
+                )
+            }
+        }
     }
 }
 
