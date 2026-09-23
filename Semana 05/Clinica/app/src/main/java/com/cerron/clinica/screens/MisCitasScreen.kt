@@ -4,9 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +30,35 @@ fun MisCitasScreen(
     navController: NavController,
     citas: List<Cita>
 ) {
+
+    // ESTADO CREADO EN LA FASE CON IA
+    var filtroSeleccionado by remember {
+        mutableStateOf("Todas")
+    }
+
+    val filtros = listOf(
+        "Todas",
+        "Confirmadas",
+        "Completadas"
+    )
+
+    // FILTRADO SEGÚN LA OPCIÓN SELECCIONADA
+    val citasFiltradas = when (filtroSeleccionado) {
+
+        "Confirmadas" -> {
+            citas.filter {
+                it.estado == "Confirmada"
+            }
+        }
+
+        "Completadas" -> {
+            citas.filter {
+                it.estado == "Completada"
+            }
+        }
+
+        else -> citas
+    }
 
     Scaffold(
         containerColor = Color.White,
@@ -65,60 +95,118 @@ fun MisCitasScreen(
 
     ) { paddingValues ->
 
-        if (citas.isEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(paddingValues)
+        ) {
 
-            // MENSAJE CUANDO NO EXISTEN CITAS
-            Box(
+            // FILTROS
+            LazyRow(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 14.dp
+                    ),
+
+                horizontalArrangement =
+                    Arrangement.spacedBy(8.dp)
             ) {
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                items(filtros.size) { index ->
 
-                    Text(
-                        text = "No tienes citas registradas",
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    val filtro = filtros[index]
 
-                    Spacer(
-                        modifier = Modifier.height(5.dp)
-                    )
+                    FilterChip(
+                        selected =
+                            filtroSeleccionado == filtro,
 
-                    Text(
-                        text = "Agenda una cita con uno de nuestros médicos.",
-                        fontSize = 13.sp,
-                        color = GrisTexto
+                        onClick = {
+                            filtroSeleccionado = filtro
+                        },
+
+                        label = {
+                            Text(
+                                text = filtro
+                            )
+                        },
+
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MoradoPrincipal,
+                            selectedLabelColor = Color.White,
+                            containerColor = Color.White,
+                            labelColor = GrisTexto
+                        )
                     )
                 }
             }
 
-        } else {
+            // NO HAY CITAS PARA EL FILTRO
+            if (citasFiltradas.isEmpty()) {
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-                    .padding(paddingValues),
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
 
-                contentPadding = PaddingValues(
-                    horizontal = 16.dp,
-                    vertical = 18.dp
-                ),
+                    contentAlignment = Alignment.Center
+                ) {
 
-                verticalArrangement =
-                    Arrangement.spacedBy(12.dp)
-            ) {
+                    Column(
+                        horizontalAlignment =
+                            Alignment.CenterHorizontally
+                    ) {
 
-                items(citas) { cita ->
+                        Text(
+                            text = if (citas.isEmpty()) {
+                                "No tienes citas registradas"
+                            } else {
+                                "No hay citas en esta categoría"
+                            },
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold
+                        )
 
-                    CitaCard(
-                        cita = cita
-                    )
+                        Spacer(
+                            modifier = Modifier.height(5.dp)
+                        )
+
+                        Text(
+                            text = if (citas.isEmpty()) {
+                                "Agenda una cita con uno de nuestros médicos."
+                            } else {
+                                "Selecciona otro filtro para ver tus citas."
+                            },
+                            fontSize = 13.sp,
+                            color = GrisTexto
+                        )
+                    }
+                }
+
+            } else {
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize(),
+
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 18.dp
+                    ),
+
+                    verticalArrangement =
+                        Arrangement.spacedBy(12.dp)
+                ) {
+
+                    items(citasFiltradas) { cita ->
+
+                        CitaCard(
+                            cita = cita
+                        )
+                    }
                 }
             }
         }
@@ -146,7 +234,7 @@ fun CitaCard(
             modifier = Modifier.fillMaxWidth()
         ) {
 
-            // LÍNEA MORADA COMO EN LA GUÍA
+            // LÍNEA LATERAL MORADA
             Box(
                 modifier = Modifier
                     .width(5.dp)
@@ -190,7 +278,6 @@ fun CitaCard(
                     modifier = Modifier.height(10.dp)
                 )
 
-                // ESTADO
                 Surface(
                     color =
                         if (esConfirmada) {
