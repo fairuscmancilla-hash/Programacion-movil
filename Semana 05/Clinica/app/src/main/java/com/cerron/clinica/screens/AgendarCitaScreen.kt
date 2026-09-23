@@ -21,6 +21,8 @@ import com.cerron.clinica.navigation.Screen
 private val MoradoPrincipal = Color(0xFF6A1B9A)
 private val MoradoClaro = Color(0xFFF4EEF8)
 private val GrisTexto = Color(0xFF666666)
+private val VerdeClaro = Color(0xFFE8F5E9)
+private val VerdeTexto = Color(0xFF2E7D32)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +39,12 @@ fun AgendarCitaScreen(
         mutableStateOf("")
     }
 
+    // El botón solo estará habilitado cuando
+    // exista una fecha y una hora seleccionadas.
+    val formularioCompleto =
+        fechaSeleccionada.isNotEmpty() &&
+                horaSeleccionada.isNotEmpty()
+
     Scaffold(
         containerColor = Color.White,
 
@@ -48,6 +56,7 @@ fun AgendarCitaScreen(
                         fontWeight = FontWeight.Bold
                     )
                 },
+
                 navigationIcon = {
                     TextButton(
                         onClick = {
@@ -61,6 +70,7 @@ fun AgendarCitaScreen(
                         )
                     }
                 },
+
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.White
                 )
@@ -71,22 +81,17 @@ fun AgendarCitaScreen(
 
             Button(
                 onClick = {
-                    if (
-                        fechaSeleccionada.isNotEmpty() &&
-                        horaSeleccionada.isNotEmpty()
-                    ) {
-                        navController.navigate(
-                            Screen.Confirmacion.crearRuta(
-                                medico.id,
-                                fechaSeleccionada,
-                                horaSeleccionada
-                            )
+
+                    navController.navigate(
+                        Screen.Confirmacion.crearRuta(
+                            medico.id,
+                            fechaSeleccionada,
+                            horaSeleccionada
                         )
-                    }
+                    )
                 },
-                enabled =
-                    fechaSeleccionada.isNotEmpty() &&
-                            horaSeleccionada.isNotEmpty(),
+
+                enabled = formularioCompleto,
 
                 modifier = Modifier
                     .fillMaxWidth()
@@ -94,11 +99,18 @@ fun AgendarCitaScreen(
                     .height(52.dp),
 
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MoradoPrincipal
+                    containerColor = MoradoPrincipal,
+                    disabledContainerColor = Color(0xFFD1C4D9),
+                    disabledContentColor = Color.White
                 )
             ) {
+
                 Text(
-                    text = "Confirmar cita",
+                    text = if (formularioCompleto) {
+                        "Confirmar cita"
+                    } else {
+                        "Selecciona fecha y hora"
+                    },
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -114,8 +126,11 @@ fun AgendarCitaScreen(
                 .padding(horizontal = 20.dp)
         ) {
 
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(
+                modifier = Modifier.height(15.dp)
+            )
 
+            // MÉDICO
             Text(
                 text = medico.nombre,
                 fontSize = 18.sp,
@@ -128,7 +143,9 @@ fun AgendarCitaScreen(
                 color = GrisTexto
             )
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(
+                modifier = Modifier.height(30.dp)
+            )
 
             // FECHA
             Text(
@@ -137,19 +154,24 @@ fun AgendarCitaScreen(
                 fontWeight = FontWeight.SemiBold
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement =
+                    Arrangement.spacedBy(10.dp)
             ) {
 
                 fechasDisponibles.forEach { fecha ->
 
                     OpcionCita(
                         texto = fecha,
-                        seleccionado = fechaSeleccionada == fecha,
+                        seleccionado =
+                            fechaSeleccionada == fecha,
                         modifier = Modifier.weight(1f),
+
                         onClick = {
                             fechaSeleccionada = fecha
                         }
@@ -157,7 +179,9 @@ fun AgendarCitaScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(35.dp))
+            Spacer(
+                modifier = Modifier.height(30.dp)
+            )
 
             // HORA
             Text(
@@ -166,23 +190,124 @@ fun AgendarCitaScreen(
                 fontWeight = FontWeight.SemiBold
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement =
+                    Arrangement.spacedBy(10.dp)
             ) {
 
                 horasDisponibles.forEach { hora ->
 
                     OpcionCita(
                         texto = hora,
-                        seleccionado = horaSeleccionada == hora,
+                        seleccionado =
+                            horaSeleccionada == hora,
                         modifier = Modifier.weight(1f),
+
                         onClick = {
                             horaSeleccionada = hora
                         }
                     )
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.height(28.dp)
+            )
+
+            // RESUMEN AGREGADO EN LA FASE CON IA
+            if (
+                fechaSeleccionada.isNotEmpty() ||
+                horaSeleccionada.isNotEmpty()
+            ) {
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+
+                    colors = CardDefaults.cardColors(
+                        containerColor =
+                            if (formularioCompleto) {
+                                VerdeClaro
+                            } else {
+                                MoradoClaro
+                            }
+                    )
+                ) {
+
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+
+                        Text(
+                            text = "Resumen de tu cita",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color =
+                                if (formularioCompleto) {
+                                    VerdeTexto
+                                } else {
+                                    MoradoPrincipal
+                                }
+                        )
+
+                        Spacer(
+                            modifier = Modifier.height(10.dp)
+                        )
+
+                        Text(
+                            text = "Médico: ${medico.nombre}",
+                            fontSize = 13.sp
+                        )
+
+                        Spacer(
+                            modifier = Modifier.height(5.dp)
+                        )
+
+                        Text(
+                            text = "Fecha: ${
+                                if (fechaSeleccionada.isNotEmpty()) {
+                                    fechaSeleccionada
+                                } else {
+                                    "Pendiente"
+                                }
+                            }",
+                            fontSize = 13.sp
+                        )
+
+                        Spacer(
+                            modifier = Modifier.height(5.dp)
+                        )
+
+                        Text(
+                            text = "Hora: ${
+                                if (horaSeleccionada.isNotEmpty()) {
+                                    horaSeleccionada
+                                } else {
+                                    "Pendiente"
+                                }
+                            }",
+                            fontSize = 13.sp
+                        )
+
+                        if (formularioCompleto) {
+
+                            Spacer(
+                                modifier = Modifier.height(10.dp)
+                            )
+
+                            Text(
+                                text = "✓ Cita lista para confirmar",
+                                fontSize = 12.sp,
+                                color = VerdeTexto,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -198,12 +323,18 @@ fun OpcionCita(
 ) {
 
     val fondo =
-        if (seleccionado) MoradoPrincipal
-        else MoradoClaro
+        if (seleccionado) {
+            MoradoPrincipal
+        } else {
+            MoradoClaro
+        }
 
     val textoColor =
-        if (seleccionado) Color.White
-        else Color.Black
+        if (seleccionado) {
+            Color.White
+        } else {
+            Color.Black
+        }
 
     Box(
         modifier = modifier
@@ -215,17 +346,21 @@ fun OpcionCita(
             .clickable {
                 onClick()
             },
+
         contentAlignment = Alignment.Center
     ) {
 
         Text(
             text = texto,
             color = textoColor,
+
             fontWeight =
-                if (seleccionado)
+                if (seleccionado) {
                     FontWeight.Bold
-                else
-                    FontWeight.Normal,
+                } else {
+                    FontWeight.Normal
+                },
+
             fontSize = 13.sp
         )
     }
