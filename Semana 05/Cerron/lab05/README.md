@@ -30,13 +30,3 @@ com.example.semana05_navegacion
 │   └── ProfileScreen.kt      ← RF05
 └── MainActivity.kt
 ```
-
-## Cómo abrir
-
-Android Studio → File → Open → seleccionar esta carpeta (no la subcarpeta `app`) → Gradle Sync → Run.
-
-## Dependencias (ya incluidas en app/build.gradle.kts)
-
-```kotlin
-implementation("androidx.navigation:navigation-compose:2.7.7")
-```
