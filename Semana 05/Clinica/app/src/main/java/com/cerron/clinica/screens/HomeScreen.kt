@@ -1,7 +1,6 @@
 package com.cerron.clinica.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -18,11 +17,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.cerron.clinica.model.Medico
 import com.cerron.clinica.model.doctoresMock
 import com.cerron.clinica.model.especialidades
 import com.cerron.clinica.navigation.Screen
+import kotlinx.coroutines.launch
 
-// Colores principales de Clínica Salud+
 private val MoradoPrincipal = Color(0xFF6A1B9A)
 private val MoradoClaro = Color(0xFFF4EEF8)
 private val MoradoIcono = Color(0xFFE9D7F2)
@@ -31,11 +31,19 @@ private val TextoSecundario = Color(0xFF666666)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController
+) {
 
     var especialidadSeleccionada by remember {
         mutableStateOf("Todos")
     }
+
+    val drawerState = rememberDrawerState(
+        initialValue = DrawerValue.Closed
+    )
+
+    val scope = rememberCoroutineScope()
 
     val medicosFiltrados =
         if (especialidadSeleccionada == "Todos") {
@@ -46,177 +54,344 @@ fun HomeScreen(navController: NavController) {
             }
         }
 
-    Scaffold(
-        containerColor = Color.White,
+    ModalNavigationDrawer(
+        drawerState = drawerState,
 
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = "Clínica Salud+",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        )
+        drawerContent = {
 
-                        Text(
-                            text = "Hola, Juan",
-                            color = Color.White,
-                            fontSize = 11.sp
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MoradoPrincipal
+            ModalDrawerSheet {
+
+                Spacer(
+                    modifier = Modifier.height(30.dp)
                 )
-            )
-        }
-    ) { paddingValues ->
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp)
-        ) {
+                Text(
+                    text = "Clínica Salud+",
+                    modifier = Modifier.padding(
+                        horizontal = 20.dp,
+                        vertical = 12.dp
+                    ),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MoradoPrincipal
+                )
 
-            Spacer(modifier = Modifier.height(14.dp))
+                HorizontalDivider()
 
-            // FILTROS DE ESPECIALIDAD
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(especialidades) { especialidad ->
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
 
-                    FilterChip(
-                        selected = especialidadSeleccionada == especialidad,
-                        onClick = {
-                            especialidadSeleccionada = especialidad
-                        },
-                        label = {
-                            Text(
-                                text = especialidad,
-                                fontSize = 12.sp
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MoradoPrincipal,
-                            selectedLabelColor = Color.White,
-                            containerColor = MoradoClaro,
-                            labelColor = Color.DarkGray
-                        ),
-                        border = null
+                // INICIO
+                NavigationDrawerItem(
+                    label = {
+                        Text("Inicio")
+                    },
+                    selected = true,
+                    onClick = {
+
+                        scope.launch {
+                            drawerState.close()
+                        }
+                    },
+                    modifier = Modifier.padding(
+                        horizontal = 12.dp
                     )
-                }
-            }
+                )
 
-            Spacer(modifier = Modifier.height(18.dp))
+                // MIS CITAS
+                NavigationDrawerItem(
+                    label = {
+                        Text("Mis citas")
+                    },
+                    selected = false,
+                    onClick = {
 
-            Text(
-                text = "Médicos disponibles",
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
+                        scope.launch {
+                            drawerState.close()
+                        }
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // LISTA DE MÉDICOS
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-
-                items(medicosFiltrados) { medico ->
-
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                navController.navigate(
-                                    Screen.PerfilMedico.crearRuta(medico.id)
-                                )
-                            },
-                        shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MoradoClaro
-                        ),
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 0.dp
+                        navController.navigate(
+                            Screen.MisCitas.route
                         )
-                    ) {
+                    },
+                    modifier = Modifier.padding(
+                        horizontal = 12.dp
+                    )
+                )
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                // HISTORIAL
+                NavigationDrawerItem(
+                    label = {
+                        Text("Historial médico")
+                    },
+                    selected = false,
+                    onClick = {
+
+                        scope.launch {
+                            drawerState.close()
+                        }
+
+                        navController.navigate(
+                            Screen.Historial.route
+                        )
+                    },
+                    modifier = Modifier.padding(
+                        horizontal = 12.dp
+                    )
+                )
+            }
+        }
+    ) {
+
+        Scaffold(
+            containerColor = Color.White,
+
+            topBar = {
+
+                TopAppBar(
+
+                    navigationIcon = {
+
+                        IconButton(
+                            onClick = {
+
+                                scope.launch {
+                                    drawerState.open()
+                                }
+                            }
                         ) {
 
-                            // Ícono circular +
-                            Box(
-                                modifier = Modifier
-                                    .size(42.dp)
-                                    .clip(CircleShape)
-                                    .background(MoradoIcono),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "+",
-                                    color = MoradoPrincipal,
-                                    fontSize = 28.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.width(12.dp))
-
-                            // Datos del médico
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-
-                                Text(
-                                    text = medico.nombre,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp,
-                                    color = Color.Black
-                                )
-
-                                Spacer(modifier = Modifier.height(2.dp))
-
-                                Text(
-                                    text = medico.especialidad,
-                                    fontSize = 12.sp,
-                                    color = TextoSecundario
-                                )
-                            }
-
-                            // Calificación
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-
-                                Text(
-                                    text = "★",
-                                    color = Dorado,
-                                    fontSize = 16.sp
-                                )
-
-                                Spacer(modifier = Modifier.width(3.dp))
-
-                                Text(
-                                    text = medico.calificacion.toString(),
-                                    fontSize = 12.sp,
-                                    color = TextoSecundario
-                                )
-                            }
+                            Text(
+                                text = "☰",
+                                color = Color.White,
+                                fontSize = 26.sp
+                            )
                         }
+                    },
+
+                    title = {
+
+                        Column {
+
+                            Text(
+                                text = "Clínica Salud+",
+                                color = Color.White,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Text(
+                                text = "Hola, Juan",
+                                color = Color.White,
+                                fontSize = 10.sp
+                            )
+                        }
+                    },
+
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MoradoPrincipal
+                    )
+                )
+            }
+
+        ) { paddingValues ->
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .padding(paddingValues)
+            ) {
+
+                Spacer(
+                    modifier = Modifier.height(18.dp)
+                )
+
+                // FILTROS DE ESPECIALIDAD
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(
+                        horizontal = 16.dp
+                    ),
+                    horizontalArrangement =
+                        Arrangement.spacedBy(8.dp)
+                ) {
+
+                    items(especialidades) { especialidad ->
+
+                        FilterChip(
+                            selected =
+                                especialidadSeleccionada ==
+                                        especialidad,
+
+                            onClick = {
+                                especialidadSeleccionada =
+                                    especialidad
+                            },
+
+                            label = {
+                                Text(
+                                    text = especialidad,
+                                    fontSize = 11.sp
+                                )
+                            },
+
+                            colors =
+                                FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor =
+                                        MoradoPrincipal,
+                                    selectedLabelColor =
+                                        Color.White,
+                                    containerColor =
+                                        MoradoClaro
+                                ),
+
+                            border =
+                                FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected =
+                                        especialidadSeleccionada ==
+                                                especialidad,
+                                    borderColor =
+                                        Color.Transparent,
+                                    selectedBorderColor =
+                                        Color.Transparent
+                                )
+                        )
+                    }
+                }
+
+                Spacer(
+                    modifier = Modifier.height(15.dp)
+                )
+
+                Text(
+                    text = "Médicos disponibles",
+                    modifier = Modifier.padding(
+                        horizontal = 16.dp
+                    ),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+                // LISTA DE MÉDICOS
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        horizontal = 16.dp,
+                        vertical = 4.dp
+                    ),
+                    verticalArrangement =
+                        Arrangement.spacedBy(10.dp)
+                ) {
+
+                    items(medicosFiltrados) { medico ->
+
+                        MedicoCard(
+                            medico = medico,
+                            onClick = {
+
+                                navController.navigate(
+                                    Screen.PerfilMedico
+                                        .crearRuta(medico.id)
+                                )
+                            }
+                        )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun MedicoCard(
+    medico: Medico,
+    onClick: () -> Unit
+) {
+
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+
+        colors = CardDefaults.cardColors(
+            containerColor = MoradoClaro
+        )
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+
+            verticalAlignment =
+                Alignment.CenterVertically
+        ) {
+
+            Box(
+                modifier = Modifier
+                    .size(45.dp)
+                    .clip(CircleShape)
+                    .background(MoradoIcono),
+
+                contentAlignment =
+                    Alignment.Center
+            ) {
+
+                Text(
+                    text = "+",
+                    color = MoradoPrincipal,
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(
+                modifier = Modifier.width(12.dp)
+            )
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+
+                Text(
+                    text = medico.nombre,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(
+                    modifier = Modifier.height(3.dp)
+                )
+
+                Text(
+                    text = medico.especialidad,
+                    fontSize = 11.sp,
+                    color = TextoSecundario
+                )
+            }
+
+            Text(
+                text = "★",
+                color = Dorado,
+                fontSize = 15.sp
+            )
+
+            Spacer(
+                modifier = Modifier.width(4.dp)
+            )
+
+            Text(
+                text = medico.calificacion.toString(),
+                fontSize = 11.sp,
+                color = TextoSecundario
+            )
         }
     }
 }

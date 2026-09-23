@@ -27,7 +27,8 @@ fun ConfirmacionScreen(
     navController: NavController,
     medico: Medico,
     fecha: String,
-    hora: String
+    hora: String,
+    onGuardarCita: () -> Unit
 ) {
 
     Column(
@@ -40,7 +41,6 @@ fun ConfirmacionScreen(
 
         Spacer(modifier = Modifier.height(60.dp))
 
-        // Círculo de confirmación
         Box(
             modifier = Modifier
                 .size(80.dp)
@@ -61,8 +61,7 @@ fun ConfirmacionScreen(
         Text(
             text = "¡Cita confirmada!",
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
+            fontWeight = FontWeight.Bold
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -75,7 +74,6 @@ fun ConfirmacionScreen(
 
         Spacer(modifier = Modifier.height(35.dp))
 
-        // Resumen
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -83,7 +81,6 @@ fun ConfirmacionScreen(
                 containerColor = MoradoClaro
             )
         ) {
-
             Column(
                 modifier = Modifier.padding(20.dp)
             ) {
@@ -148,6 +145,8 @@ fun ConfirmacionScreen(
 
         Button(
             onClick = {
+                onGuardarCita()
+
                 navController.navigate(Screen.Home.route) {
                     popUpTo(Screen.Home.route) {
                         inclusive = true
