@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.cerron.clinica.model.doctoresMock
 import com.cerron.clinica.screens.HomeScreen
 import com.cerron.clinica.screens.PerfilMedicoScreen
+import com.cerron.clinica.screens.AgendarCitaScreen
 
 @Composable
 fun AppNavigation() {
@@ -46,6 +47,30 @@ fun AppNavigation() {
 
             if (medico != null) {
                 PerfilMedicoScreen(
+                    navController = navController,
+                    medico = medico
+                )
+            }
+        }
+        // AGENDAR CITA
+        composable(
+            route = Screen.AgendarCita.route,
+            arguments = listOf(
+                navArgument("medicoId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+
+            val medicoId =
+                backStackEntry.arguments?.getInt("medicoId")
+
+            val medico = doctoresMock.find {
+                it.id == medicoId
+            }
+
+            if (medico != null) {
+                AgendarCitaScreen(
                     navController = navController,
                     medico = medico
                 )
