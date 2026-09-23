@@ -59,50 +59,114 @@ fun HomeScreen(
 
         drawerContent = {
 
-            ModalDrawerSheet {
+            ModalDrawerSheet(
+                drawerContainerColor = Color.White
+            ) {
 
                 Spacer(
-                    modifier = Modifier.height(30.dp)
+                    modifier = Modifier.height(25.dp)
                 )
 
-                Text(
-                    text = "Clínica Salud+",
-                    modifier = Modifier.padding(
-                        horizontal = 20.dp,
-                        vertical = 12.dp
-                    ),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MoradoPrincipal
-                )
+                // PERFIL DEL USUARIO
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 20.dp,
+                            vertical = 15.dp
+                        ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                HorizontalDivider()
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(MoradoIcono),
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                        Text(
+                            text = "JP",
+                            color = MoradoPrincipal,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
+
+                    Spacer(
+                        modifier = Modifier.width(12.dp)
+                    )
+
+                    Column {
+
+                        Text(
+                            text = "Juan Pérez",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Text(
+                            text = "Paciente",
+                            fontSize = 12.sp,
+                            color = TextoSecundario
+                        )
+                    }
+                }
+
+                HorizontalDivider(
+                    color = Color(0xFFE0E0E0)
+                )
 
                 Spacer(
-                    modifier = Modifier.height(10.dp)
+                    modifier = Modifier.height(12.dp)
                 )
 
                 // INICIO
                 NavigationDrawerItem(
+                    icon = {
+                        Text(
+                            text = "○",
+                            fontSize = 25.sp,
+                            color = Color.DarkGray
+                        )
+                    },
                     label = {
-                        Text("Inicio")
+                        Text(
+                            text = "Inicio",
+                            fontSize = 14.sp
+                        )
                     },
                     selected = true,
                     onClick = {
-
                         scope.launch {
                             drawerState.close()
                         }
                     },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = MoradoClaro,
+                        selectedTextColor = MoradoPrincipal
+                    ),
                     modifier = Modifier.padding(
-                        horizontal = 12.dp
+                        horizontal = 12.dp,
+                        vertical = 3.dp
                     )
                 )
 
                 // MIS CITAS
                 NavigationDrawerItem(
+                    icon = {
+                        Text(
+                            text = "○",
+                            fontSize = 25.sp,
+                            color = MoradoPrincipal
+                        )
+                    },
                     label = {
-                        Text("Mis citas")
+                        Text(
+                            text = "Mis citas",
+                            fontSize = 14.sp
+                        )
                     },
                     selected = false,
                     onClick = {
@@ -115,15 +179,30 @@ fun HomeScreen(
                             Screen.MisCitas.route
                         )
                     },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = MoradoClaro,
+                        selectedTextColor = MoradoPrincipal
+                    ),
                     modifier = Modifier.padding(
-                        horizontal = 12.dp
+                        horizontal = 12.dp,
+                        vertical = 3.dp
                     )
                 )
 
-                // HISTORIAL
+                // HISTORIAL MÉDICO
                 NavigationDrawerItem(
+                    icon = {
+                        Text(
+                            text = "○",
+                            fontSize = 25.sp,
+                            color = Color.DarkGray
+                        )
+                    },
                     label = {
-                        Text("Historial médico")
+                        Text(
+                            text = "Historial médico",
+                            fontSize = 14.sp
+                        )
                     },
                     selected = false,
                     onClick = {
@@ -136,12 +215,57 @@ fun HomeScreen(
                             Screen.Historial.route
                         )
                     },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = MoradoClaro,
+                        selectedTextColor = MoradoPrincipal
+                    ),
                     modifier = Modifier.padding(
-                        horizontal = 12.dp
+                        horizontal = 12.dp,
+                        vertical = 3.dp
+                    )
+                )
+
+                // PERFIL
+                NavigationDrawerItem(
+                    icon = {
+                        Text(
+                            text = "○",
+                            fontSize = 25.sp,
+                            color = Color.DarkGray
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Perfil",
+                            fontSize = 14.sp
+                        )
+                    },
+                    selected = false,
+
+                    onClick = {
+
+                        scope.launch {
+                            drawerState.close()
+                        }
+
+                        navController.navigate(
+                            Screen.Perfil.route
+                        )
+                    },
+
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = MoradoClaro,
+                        selectedTextColor = MoradoPrincipal
+                    ),
+
+                    modifier = Modifier.padding(
+                        horizontal = 12.dp,
+                        vertical = 3.dp
                     )
                 )
             }
         }
+
     ) {
 
         Scaffold(

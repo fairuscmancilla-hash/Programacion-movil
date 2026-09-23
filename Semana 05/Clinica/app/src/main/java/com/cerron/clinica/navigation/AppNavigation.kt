@@ -16,7 +16,7 @@ import com.cerron.clinica.screens.HistorialScreen
 import com.cerron.clinica.screens.HomeScreen
 import com.cerron.clinica.screens.MisCitasScreen
 import com.cerron.clinica.screens.PerfilMedicoScreen
-
+import com.cerron.clinica.screens.PerfilScreen
 @Composable
 fun AppNavigation() {
 
@@ -149,6 +149,13 @@ fun AppNavigation() {
         // HISTORIAL MÉDICO
         composable(Screen.Historial.route) {
             HistorialScreen(
+                navController = navController
+            )
+        }
+
+        // PERFIL DEL PACIENTE
+        composable(Screen.Perfil.route) {
+            PerfilScreen(
                 navController = navController
             )
         }

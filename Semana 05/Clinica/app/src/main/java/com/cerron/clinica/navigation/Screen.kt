@@ -32,9 +32,12 @@ sealed class Screen(val route: String) {
         }
     }
 
-    // Pantalla del menú lateral
+    // Mis citas
     object MisCitas : Screen("mis_citas")
 
-    // Pantalla del menú lateral
+    // Historial médico
     object Historial : Screen("historial")
+
+    // Perfil del paciente
+    object Perfil : Screen("perfil")
 }
