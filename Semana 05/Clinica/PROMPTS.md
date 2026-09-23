@@ -63,3 +63,40 @@ Se comprobó que:
 - El resumen se actualiza automáticamente según la selección.
 - Cuando la fecha y la hora están completas, aparece el mensaje "Cita lista para confirmar".
 - El botón "Confirmar cita" se habilita únicamente cuando ambas selecciones están completas.
+
+
+---
+
+## Prompt 3 - Búsqueda de médicos
+
+**Prompt utilizado:**
+
+> Mejora la pantalla HomeScreen de mi aplicación Clínica Salud+ desarrollada con Kotlin y Jetpack Compose. Agrega un campo de búsqueda que permita buscar médicos por nombre o especialidad. La búsqueda debe funcionar junto con el filtro de especialidades existente. Utiliza estado local con remember y mutableStateOf, conserva el diseño morado de la aplicación y no utilices ViewModel ni MVVM.
+
+**Objetivo:**
+
+Facilitar al usuario la búsqueda de médicos disponibles desde la pantalla principal.
+
+**Resultado esperado:**
+
+- Mostrar un campo de búsqueda en Inicio.
+- Buscar médicos por nombre.
+- Buscar médicos por especialidad.
+- Combinar la búsqueda con el filtro de especialidades.
+- Actualizar la lista automáticamente mientras el usuario escribe.
+- Mostrar un mensaje cuando no existan resultados.
+- Utilizar estado local de Jetpack Compose.
+- No utilizar ViewModel ni MVVM.
+
+**Validación:**
+
+La mejora fue validada correctamente en el emulador de Android Studio.
+
+Se comprobó que:
+
+- El buscador filtra médicos por nombre.
+- El buscador permite buscar por especialidad.
+- Los resultados se actualizan automáticamente mientras el usuario escribe.
+- El buscador funciona en conjunto con los filtros de especialidad.
+- Cuando no existen coincidencias, se muestra el mensaje "No encontramos médicos".
+- Al borrar la búsqueda, vuelven a mostrarse los médicos disponibles.

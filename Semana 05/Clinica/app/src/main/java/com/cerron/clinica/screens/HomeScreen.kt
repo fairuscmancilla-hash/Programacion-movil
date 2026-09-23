@@ -35,8 +35,15 @@ fun HomeScreen(
     navController: NavController
 ) {
 
+    // ESTADO DEL FILTRO DE ESPECIALIDAD
     var especialidadSeleccionada by remember {
         mutableStateOf("Todos")
+    }
+
+    // MEJORA IA #3:
+    // Estado que almacena lo escrito en el buscador.
+    var textoBusqueda by remember {
+        mutableStateOf("")
     }
 
     val drawerState = rememberDrawerState(
@@ -45,14 +52,26 @@ fun HomeScreen(
 
     val scope = rememberCoroutineScope()
 
-    val medicosFiltrados =
-        if (especialidadSeleccionada == "Todos") {
-            doctoresMock
-        } else {
-            doctoresMock.filter {
-                it.especialidad == especialidadSeleccionada
-            }
-        }
+    // FILTRADO POR ESPECIALIDAD + BÚSQUEDA
+    val medicosFiltrados = doctoresMock.filter { medico ->
+
+        val coincideEspecialidad =
+            especialidadSeleccionada == "Todos" ||
+                    medico.especialidad == especialidadSeleccionada
+
+        val coincideBusqueda =
+            textoBusqueda.isBlank() ||
+                    medico.nombre.contains(
+                        textoBusqueda,
+                        ignoreCase = true
+                    ) ||
+                    medico.especialidad.contains(
+                        textoBusqueda,
+                        ignoreCase = true
+                    )
+
+        coincideEspecialidad && coincideBusqueda
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -131,22 +150,27 @@ fun HomeScreen(
                             color = Color.DarkGray
                         )
                     },
+
                     label = {
                         Text(
                             text = "Inicio",
                             fontSize = 14.sp
                         )
                     },
+
                     selected = true,
+
                     onClick = {
                         scope.launch {
                             drawerState.close()
                         }
                     },
+
                     colors = NavigationDrawerItemDefaults.colors(
                         selectedContainerColor = MoradoClaro,
                         selectedTextColor = MoradoPrincipal
                     ),
+
                     modifier = Modifier.padding(
                         horizontal = 12.dp,
                         vertical = 3.dp
@@ -162,13 +186,16 @@ fun HomeScreen(
                             color = MoradoPrincipal
                         )
                     },
+
                     label = {
                         Text(
                             text = "Mis citas",
                             fontSize = 14.sp
                         )
                     },
+
                     selected = false,
+
                     onClick = {
 
                         scope.launch {
@@ -179,10 +206,12 @@ fun HomeScreen(
                             Screen.MisCitas.route
                         )
                     },
+
                     colors = NavigationDrawerItemDefaults.colors(
                         selectedContainerColor = MoradoClaro,
                         selectedTextColor = MoradoPrincipal
                     ),
+
                     modifier = Modifier.padding(
                         horizontal = 12.dp,
                         vertical = 3.dp
@@ -198,13 +227,16 @@ fun HomeScreen(
                             color = Color.DarkGray
                         )
                     },
+
                     label = {
                         Text(
                             text = "Historial médico",
                             fontSize = 14.sp
                         )
                     },
+
                     selected = false,
+
                     onClick = {
 
                         scope.launch {
@@ -215,10 +247,12 @@ fun HomeScreen(
                             Screen.Historial.route
                         )
                     },
+
                     colors = NavigationDrawerItemDefaults.colors(
                         selectedContainerColor = MoradoClaro,
                         selectedTextColor = MoradoPrincipal
                     ),
+
                     modifier = Modifier.padding(
                         horizontal = 12.dp,
                         vertical = 3.dp
@@ -234,12 +268,14 @@ fun HomeScreen(
                             color = Color.DarkGray
                         )
                     },
+
                     label = {
                         Text(
                             text = "Perfil",
                             fontSize = 14.sp
                         )
                     },
+
                     selected = false,
 
                     onClick = {
@@ -329,15 +365,80 @@ fun HomeScreen(
             ) {
 
                 Spacer(
-                    modifier = Modifier.height(18.dp)
+                    modifier = Modifier.height(16.dp)
+                )
+
+                // =====================================
+                // MEJORA IA #3 - BUSCADOR DE MÉDICOS
+                // =====================================
+                OutlinedTextField(
+                    value = textoBusqueda,
+
+                    onValueChange = {
+                        textoBusqueda = it
+                    },
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+
+                    placeholder = {
+                        Text(
+                            text = "Buscar médico o especialidad",
+                            fontSize = 13.sp
+                        )
+                    },
+
+                    leadingIcon = {
+                        Text(
+                            text = "⌕",
+                            fontSize = 22.sp,
+                            color = MoradoPrincipal
+                        )
+                    },
+
+                    trailingIcon = {
+
+                        if (textoBusqueda.isNotEmpty()) {
+
+                            TextButton(
+                                onClick = {
+                                    textoBusqueda = ""
+                                }
+                            ) {
+
+                                Text(
+                                    text = "×",
+                                    color = MoradoPrincipal,
+                                    fontSize = 22.sp
+                                )
+                            }
+                        }
+                    },
+
+                    singleLine = true,
+
+                    shape = RoundedCornerShape(12.dp),
+
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MoradoPrincipal,
+                        unfocusedBorderColor = Color(0xFFDDDDDD),
+                        cursorColor = MoradoPrincipal
+                    )
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
                 )
 
                 // FILTROS DE ESPECIALIDAD
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
+
                     contentPadding = PaddingValues(
                         horizontal = 16.dp
                     ),
+
                     horizontalArrangement =
                         Arrangement.spacedBy(8.dp)
                 ) {
@@ -406,18 +507,55 @@ fun HomeScreen(
                 // LISTA DE MÉDICOS
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
+
                     contentPadding = PaddingValues(
                         horizontal = 16.dp,
                         vertical = 4.dp
                     ),
+
                     verticalArrangement =
                         Arrangement.spacedBy(10.dp)
                 ) {
 
+                    // SI NO HAY RESULTADOS
+                    if (medicosFiltrados.isEmpty()) {
+
+                        item {
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 35.dp),
+
+                                horizontalAlignment =
+                                    Alignment.CenterHorizontally
+                            ) {
+
+                                Text(
+                                    text = "No encontramos médicos",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.height(5.dp)
+                                )
+
+                                Text(
+                                    text = "Prueba con otro nombre o especialidad.",
+                                    fontSize = 12.sp,
+                                    color = TextoSecundario
+                                )
+                            }
+                        }
+                    }
+
+                    // RESULTADOS
                     items(medicosFiltrados) { medico ->
 
                         MedicoCard(
                             medico = medico,
+
                             onClick = {
 
                                 navController.navigate(
@@ -433,6 +571,7 @@ fun HomeScreen(
     }
 }
 
+
 @Composable
 fun MedicoCard(
     medico: Medico,
@@ -441,7 +580,9 @@ fun MedicoCard(
 
     Card(
         onClick = onClick,
+
         modifier = Modifier.fillMaxWidth(),
+
         shape = RoundedCornerShape(12.dp),
 
         colors = CardDefaults.cardColors(
