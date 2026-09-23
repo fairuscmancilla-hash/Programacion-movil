@@ -1,6 +1,12 @@
-# Semana 05 — Navegación en Jetpack Compose (rama **sin-ia**)
+# Semana 05 — Navegación en Jetpack Compose (rama **con-ia**)
 
-Versión desarrollada siguiendo la guía del laboratorio (Home, List, Detail, Profile) y ampliada con Login y búsqueda, sin asistencia de IA en el diseño. Interfaz Material 3 básica.
+Mismos 5 requerimientos funcionales y la misma navegación que la rama `sin-ia`, pero con la presentación rediseñada con ayuda de IA (Gemini): *Portal Académico*, menú con tarjetas, *Directorio de Alumnos*, *Expediente Académico* y *Configuración de Perfil*. El prompt usado está en `PROMPT_GEMINI.md`.
+
+## Fotos de los alumnos
+
+Las 8 fotos son retratos de **personas ficticias generados con IA** (Higgsfield · Soul 2).
+Están en `app/src/main/res/drawable/alumno_1.webp` … `alumno_8.webp` y se cargan con el
+componente `FotoAlumno` (Componentes.kt), que las reduce al cargarlas para no gastar memoria.
 
 ## Requerimientos funcionales
 
@@ -27,6 +33,26 @@ com.example.semana05_navegacion
 │   ├── HomeScreen.kt         ← RF02
 │   ├── ListScreen.kt         ← RF03
 │   ├── DetailScreen.kt       ← RF04
-│   └── ProfileScreen.kt      ← RF05
+│   ├── ProfileScreen.kt      ← RF05
+│   └── Componentes.kt        ← colores, avatar con iniciales, filas de info
 └── MainActivity.kt
+```
+
+## Cómo abrir
+
+Android Studio → File → Open → seleccionar esta carpeta (no la subcarpeta `app`) → Gradle Sync → Run.
+
+## Fotos: un solo paso
+
+- **Windows:** doble clic en `DESCARGAR_FOTOS.bat` (descarga las 8 fotos a `app/src/main/res/drawable`).
+- **Mac:** en la Terminal, dentro de esta carpeta: `./descargar_fotos.sh`
+
+Luego en Android Studio: Build → Rebuild Project → Run. Sin las fotos la app igual funciona y muestra iniciales.
+
+## Dependencias (ya incluidas en app/build.gradle.kts)
+
+```kotlin
+implementation("androidx.navigation:navigation-compose:2.7.7")
+// Íconos extra (Visibility, Groups, School, Badge, Logout...). La versión la pone el BOM de Compose
+implementation("androidx.compose.material:material-icons-extended")
 ```
