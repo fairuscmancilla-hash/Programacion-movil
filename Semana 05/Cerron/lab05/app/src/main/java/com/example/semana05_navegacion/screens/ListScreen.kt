@@ -1,34 +1,28 @@
 package com.example.semana05_navegacion.screens
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.semana05_navegacion.data.AlumnoRepository
+import com.example.semana05_navegacion.data.iniciales
 import com.example.semana05_navegacion.navigation.Screen
 
-// RF03 — Lista de alumnos con búsqueda en tiempo real por nombre o carrera
+// RF03 — Directorio de alumnos con búsqueda (versión con IA: tarjetas con avatar)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(navController: NavController) {
@@ -38,15 +32,13 @@ fun ListScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Lista de alumnos") },
+                title = { Text("Directorio de Alumnos", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver"
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = PortalColors.Lavanda)
             )
         }
     ) { padding ->
@@ -54,28 +46,60 @@ fun ListScreen(navController: NavController) {
             OutlinedTextField(
                 value = busqueda,
                 onValueChange = { busqueda = it },
-                label = { Text("Buscar por nombre o carrera") },
+                placeholder = { Text("Buscar por nombre o carrera") },
+                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (busqueda.isNotEmpty()) {
+                        IconButton(onClick = { busqueda = "" }) {
+                            Icon(Icons.Filled.Clear, contentDescription = "Limpiar")
+                        }
+                    }
+                },
                 singleLine = true,
+                shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(16.dp)
             )
-            if (alumnos.isEmpty()) {
-                Text(
-                    text = "No se encontraron alumnos",
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-            LazyColumn {
-                items(alumnos) { alumno ->
-                    ListItem(
-                        headlineContent = { Text(alumno.nombre) },
-                        supportingContent = { Text(alumno.carrera) },
-                        modifier = Modifier.clickable {
-                            navController.navigate(Screen.Detail.createRoute(alumno.id))
+            Text(
+                text = "${alumnos.size} alumno(s) encontrado(s)",
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Gray,
+                modifier = Modifier.padding(horizontal = 20.dp)
+            )
+
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 32.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(alumnos, key = { it.id }) { alumno ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { navController.navigate(Screen.Detail.createRoute(alumno.id)) },
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            FotoAlumno(alumno.foto, alumno.iniciales, size = 52.dp)
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(alumno.nombre, fontWeight = FontWeight.Bold)
+                                Text(
+                                    alumno.carrera,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = PortalColors.Primario
+                                )
+                            }
+                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.Gray)
                         }
-                    )
-                    HorizontalDivider()
+                    }
                 }
             }
         }
