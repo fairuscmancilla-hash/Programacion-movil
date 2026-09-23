@@ -10,6 +10,7 @@ import com.cerron.clinica.model.doctoresMock
 import com.cerron.clinica.screens.HomeScreen
 import com.cerron.clinica.screens.PerfilMedicoScreen
 import com.cerron.clinica.screens.AgendarCitaScreen
+import com.cerron.clinica.screens.ConfirmacionScreen
 
 @Composable
 fun AppNavigation() {
@@ -73,6 +74,44 @@ fun AppNavigation() {
                 AgendarCitaScreen(
                     navController = navController,
                     medico = medico
+                )
+            }
+        }
+        // CONFIRMACIÓN DE CITA
+        composable(
+            route = Screen.Confirmacion.route,
+            arguments = listOf(
+                navArgument("medicoId") {
+                    type = NavType.IntType
+                },
+                navArgument("fecha") {
+                    type = NavType.StringType
+                },
+                navArgument("hora") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+
+            val medicoId =
+                backStackEntry.arguments?.getInt("medicoId")
+
+            val fecha =
+                backStackEntry.arguments?.getString("fecha") ?: ""
+
+            val hora =
+                backStackEntry.arguments?.getString("hora") ?: ""
+
+            val medico = doctoresMock.find {
+                it.id == medicoId
+            }
+
+            if (medico != null) {
+                ConfirmacionScreen(
+                    navController = navController,
+                    medico = medico,
+                    fecha = fecha,
+                    hora = hora
                 )
             }
         }
