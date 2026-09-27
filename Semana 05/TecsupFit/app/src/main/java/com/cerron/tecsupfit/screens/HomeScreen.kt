@@ -322,12 +322,11 @@ fun ClaseCard(
                     Alignment.Center
             ) {
 
-                // Representación simple de la pesa del PDF
-                Text(
-                    text = "▰",
-                    color = VerdePrincipal,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
+                IconoMancuerna(
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(20.dp),
+                    color = VerdePrincipal
                 )
             }
 
