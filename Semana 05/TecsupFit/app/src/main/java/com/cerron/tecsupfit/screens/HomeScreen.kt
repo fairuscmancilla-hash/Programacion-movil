@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,10 +22,10 @@ import com.cerron.tecsupfit.model.clasesMock
 import com.cerron.tecsupfit.model.filtrosClases
 import com.cerron.tecsupfit.navigation.Screen
 
-private val AzulPrincipal = Color(0xFF1565C0)
-private val AzulClaro = Color(0xFFEAF3FC)
-private val TextoSecundario = Color(0xFF666666)
-private val VerdeCupos = Color(0xFF2E7D32)
+private val VerdePrincipal = Color(0xFF078568)
+private val VerdeClaro = Color(0xFFDDF3EC)
+private val GrisTarjeta = Color(0xFFF1F1F1)
+private val GrisTexto = Color(0xFF666666)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +48,7 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Column {
+
                         Text(
                             text = "TECSUP Fit",
                             color = Color.White,
@@ -54,7 +57,7 @@ fun HomeScreen(
                         )
 
                         Text(
-                            text = "Encuentra tu próxima clase",
+                            text = "Hola, Diego",
                             color = Color.White,
                             fontSize = 11.sp
                         )
@@ -62,9 +65,117 @@ fun HomeScreen(
                 },
 
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AzulPrincipal
+                    containerColor = VerdePrincipal
                 )
             )
+        },
+
+        bottomBar = {
+
+            NavigationBar(
+                containerColor = Color.White
+            ) {
+
+                NavigationBarItem(
+                    selected = true,
+                    onClick = { },
+                    icon = {
+                        BottomIcon(
+                            simbolo = "○",
+                            seleccionado = true
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Inicio",
+                            fontSize = 10.sp
+                        )
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = VerdePrincipal,
+                        selectedTextColor = VerdePrincipal,
+                        indicatorColor = Color.Transparent
+                    )
+                )
+
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        navController.navigate(
+                            Screen.Reservas.route
+                        )
+                    },
+                    icon = {
+                        BottomIcon(
+                            simbolo = "○",
+                            seleccionado = false
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Reservas",
+                            fontSize = 10.sp
+                        )
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = VerdePrincipal,
+                        selectedTextColor = VerdePrincipal,
+                        indicatorColor = Color.Transparent
+                    )
+                )
+
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        navController.navigate(
+                            Screen.Rutinas.route
+                        )
+                    },
+                    icon = {
+                        BottomIcon(
+                            simbolo = "○",
+                            seleccionado = false
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Rutinas",
+                            fontSize = 10.sp
+                        )
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = VerdePrincipal,
+                        selectedTextColor = VerdePrincipal,
+                        indicatorColor = Color.Transparent
+                    )
+                )
+
+                NavigationBarItem(
+                    selected = false,
+                    onClick = {
+                        navController.navigate(
+                            Screen.Perfil.route
+                        )
+                    },
+                    icon = {
+                        BottomIcon(
+                            simbolo = "○",
+                            seleccionado = false
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Perfil",
+                            fontSize = 10.sp
+                        )
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = VerdePrincipal,
+                        selectedTextColor = VerdePrincipal,
+                        indicatorColor = Color.Transparent
+                    )
+                )
+            }
         }
 
     ) { paddingValues ->
@@ -74,42 +185,15 @@ fun HomeScreen(
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(paddingValues)
+                .padding(horizontal = 16.dp)
         ) {
 
             Spacer(
-                modifier = Modifier.height(18.dp)
+                modifier = Modifier.height(14.dp)
             )
 
-            Text(
-                text = "Clases disponibles",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
-
-            Text(
-                text = "Elige una clase y reserva tu cupo",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                fontSize = 13.sp,
-                color = TextoSecundario
-            )
-
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-
-            // FILTROS: HOY / ESTA SEMANA
+            // FILTROS
             LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-
-                contentPadding = PaddingValues(
-                    horizontal = 16.dp
-                ),
-
                 horizontalArrangement =
                     Arrangement.spacedBy(8.dp)
             ) {
@@ -127,18 +211,31 @@ fun HomeScreen(
                         label = {
                             Text(
                                 text = filtro,
-                                fontSize = 13.sp
+                                fontSize = 11.sp
                             )
                         },
 
                         colors =
                             FilterChipDefaults.filterChipColors(
                                 selectedContainerColor =
-                                    AzulPrincipal,
+                                    VerdePrincipal,
+
                                 selectedLabelColor =
                                     Color.White,
+
                                 containerColor =
-                                    AzulClaro
+                                    GrisTarjeta
+                            ),
+
+                        border =
+                            FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected =
+                                    filtroSeleccionado == filtro,
+                                borderColor =
+                                    Color.Transparent,
+                                selectedBorderColor =
+                                    Color.Transparent
                             )
                     )
                 }
@@ -148,18 +245,24 @@ fun HomeScreen(
                 modifier = Modifier.height(14.dp)
             )
 
-            // LISTA DE CLASES
+            Text(
+                text = "Clases disponibles",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
 
-                contentPadding = PaddingValues(
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 20.dp
-                ),
-
                 verticalArrangement =
-                    Arrangement.spacedBy(12.dp)
+                    Arrangement.spacedBy(10.dp),
+
+                contentPadding =
+                    PaddingValues(bottom = 16.dp)
             ) {
 
                 items(clasesFiltradas) { clase ->
@@ -168,6 +271,7 @@ fun HomeScreen(
                         clase = clase,
 
                         onClick = {
+
                             navController.navigate(
                                 Screen.DetalleClase
                                     .crearRuta(clase.id)
@@ -189,81 +293,94 @@ fun ClaseCard(
     Card(
         onClick = onClick,
 
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth(),
 
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(10.dp),
 
         colors = CardDefaults.cardColors(
-            containerColor = AzulClaro
+            containerColor = GrisTarjeta
         )
     ) {
 
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(12.dp),
+
+            verticalAlignment =
+                Alignment.CenterVertically
         ) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(VerdeClaro),
 
-                horizontalArrangement =
-                    Arrangement.SpaceBetween,
-
-                verticalAlignment =
-                    Alignment.CenterVertically
+                contentAlignment =
+                    Alignment.Center
             ) {
 
+                // Representación simple de la pesa del PDF
                 Text(
-                    text = clase.nombre,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Text(
-                    text = clase.horario,
-                    fontSize = 14.sp,
-                    color = AzulPrincipal,
+                    text = "▰",
+                    color = VerdePrincipal,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
 
             Spacer(
-                modifier = Modifier.height(8.dp)
+                modifier = Modifier.width(12.dp)
             )
 
-            Text(
-                text = "Entrenador: ${clase.entrenador}",
-                fontSize = 13.sp,
-                color = TextoSecundario
-            )
-
-            Spacer(
-                modifier = Modifier.height(5.dp)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-
-                horizontalArrangement =
-                    Arrangement.SpaceBetween
-            ) {
+            Column {
 
                 Text(
-                    text = "Duración: ${clase.duracion}",
-                    fontSize = 12.sp,
-                    color = TextoSecundario
+                    text = clase.nombre,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(
+                    modifier = Modifier.height(3.dp)
                 )
 
                 Text(
-                    text = "${clase.cupos} cupos",
-                    fontSize = 12.sp,
-                    color = VerdeCupos,
-                    fontWeight = FontWeight.Bold
+                    text = "${clase.horario} · ${clase.sala}",
+                    fontSize = 11.sp,
+                    color = GrisTexto
                 )
             }
         }
     }
+}
+
+@Composable
+fun BottomIcon(
+    simbolo: String,
+    seleccionado: Boolean
+) {
+
+    Text(
+        text = simbolo,
+        fontSize = 24.sp,
+
+        color =
+            if (seleccionado) {
+                VerdePrincipal
+            } else {
+                Color.DarkGray
+            },
+
+        fontWeight =
+            if (seleccionado) {
+                FontWeight.Bold
+            } else {
+                FontWeight.Normal
+            }
+    )
 }
 
 
