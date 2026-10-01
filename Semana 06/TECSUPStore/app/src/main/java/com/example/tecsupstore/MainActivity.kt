@@ -50,24 +50,29 @@ class MainActivity : ComponentActivity() {
                     drawerState = drawerState,
                     drawerContent = {
                         AppDrawer(
+                            pantallaActual = pantallaActual,
+
                             onInicioClick = {
                                 pantallaActual = "Inicio"
                                 scope.launch {
                                     drawerState.close()
                                 }
                             },
+
                             onPedidosClick = {
                                 pantallaActual = "Mis pedidos"
                                 scope.launch {
                                     drawerState.close()
                                 }
                             },
+
                             onFavoritosClick = {
                                 pantallaActual = "Favoritos"
                                 scope.launch {
                                     drawerState.close()
                                 }
                             },
+
                             onPerfilClick = {
                                 pantallaActual = "Perfil"
                                 scope.launch {
@@ -111,6 +116,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+
         }
     }
 }
