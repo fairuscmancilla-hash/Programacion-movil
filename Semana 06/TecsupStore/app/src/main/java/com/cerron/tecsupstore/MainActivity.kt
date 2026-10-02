@@ -62,6 +62,7 @@ class MainActivity : ComponentActivity() {
 
                         AppDrawer(
                             pantallaActual = pantallaActual,
+                            cantidadFavoritos = favoritos.size,
 
                             onInicioClick = {
                                 pantallaActual = "Inicio"
