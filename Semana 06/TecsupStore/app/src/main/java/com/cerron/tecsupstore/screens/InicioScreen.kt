@@ -12,7 +12,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,12 +30,11 @@ import androidx.compose.ui.unit.dp
 import com.cerron.tecsupstore.data.categorias
 import com.cerron.tecsupstore.data.productos
 import com.cerron.tecsupstore.model.Producto
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 
 @Composable
 fun InicioScreen(
+    favoritos: List<Producto>,
+    onAgregarFavorito: (Producto) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -40,13 +42,14 @@ fun InicioScreen(
         mutableStateOf("Todos")
     }
 
-    val productosFiltrados = if (categoriaSeleccionada == "Todos") {
-        productos
-    } else {
-        productos.filter { producto ->
-            producto.categoria == categoriaSeleccionada
+    val productosFiltrados =
+        if (categoriaSeleccionada == "Todos") {
+            productos
+        } else {
+            productos.filter { producto ->
+                producto.categoria == categoriaSeleccionada
+            }
         }
-    }
 
     Column(
         modifier = modifier
@@ -72,7 +75,6 @@ fun InicioScreen(
             )
         )
 
-        // Categorías
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -86,13 +88,12 @@ fun InicioScreen(
                         categoriaSeleccionada = categoria
                     },
                     label = {
-                        Text(text = categoria)
+                        Text(categoria)
                     }
                 )
             }
         }
 
-        // Lista de productos
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
@@ -102,7 +103,13 @@ fun InicioScreen(
             items(productosFiltrados) { producto ->
 
                 ProductoCard(
-                    producto = producto
+                    producto = producto,
+                    esFavorito = favoritos.any {
+                        it.id == producto.id
+                    },
+                    onAgregarFavorito = {
+                        onAgregarFavorito(producto)
+                    }
                 )
             }
         }
@@ -112,10 +119,11 @@ fun InicioScreen(
 
 @Composable
 fun ProductoCard(
-    producto: Producto
+    producto: Producto,
+    esFavorito: Boolean,
+    onAgregarFavorito: () -> Unit
 ) {
 
-    // Estado que posteriormente controlará el DropdownMenu
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -131,7 +139,6 @@ fun ProductoCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
-            // Información del producto
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -162,7 +169,6 @@ fun ProductoCard(
                 )
             }
 
-            // Contenedor del botón contextual
             Box {
 
                 IconButton(
@@ -170,11 +176,13 @@ fun ProductoCard(
                         expanded = true
                     }
                 ) {
+
                     Text(
                         text = "⋮",
                         style = MaterialTheme.typography.headlineSmall
                     )
                 }
+
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = {
@@ -184,15 +192,26 @@ fun ProductoCard(
 
                     DropdownMenuItem(
                         text = {
-                            Text("Favoritos")
+                            Text(
+                                if (esFavorito) {
+                                    "Agregado a favoritos"
+                                } else {
+                                    "Favoritos"
+                                }
+                            )
                         },
                         leadingIcon = {
                             Text(
-                                text = "♥",
+                                text = if (esFavorito) "♥" else "♡",
                                 style = MaterialTheme.typography.titleMedium
                             )
                         },
                         onClick = {
+
+                            if (!esFavorito) {
+                                onAgregarFavorito()
+                            }
+
                             expanded = false
                         }
                     )

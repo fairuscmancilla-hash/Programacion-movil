@@ -14,12 +14,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.cerron.tecsupstore.components.AppDrawer
+import com.cerron.tecsupstore.model.Producto
 import com.cerron.tecsupstore.screens.FavoritosScreen
 import com.cerron.tecsupstore.screens.InicioScreen
 import com.cerron.tecsupstore.screens.PedidosScreen
@@ -31,6 +33,7 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
         setContent {
@@ -47,6 +50,11 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf("Inicio")
                 }
 
+                // Lista observable de productos favoritos
+                val favoritos = remember {
+                    mutableStateListOf<Producto>()
+                }
+
                 ModalNavigationDrawer(
                     drawerState = drawerState,
 
@@ -54,6 +62,7 @@ class MainActivity : ComponentActivity() {
 
                         AppDrawer(
                             pantallaActual = pantallaActual,
+
                             onInicioClick = {
                                 pantallaActual = "Inicio"
 
@@ -90,13 +99,11 @@ class MainActivity : ComponentActivity() {
                 ) {
 
                     Scaffold(
-
                         modifier = Modifier.fillMaxSize(),
 
                         topBar = {
 
                             TopAppBar(
-
                                 title = {
                                     Text(pantallaActual)
                                 },
@@ -111,13 +118,11 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
                                     ) {
-
                                         Text("☰")
                                     }
                                 }
                             )
                         }
-
                     ) { innerPadding ->
 
                         when (pantallaActual) {
@@ -125,6 +130,19 @@ class MainActivity : ComponentActivity() {
                             "Inicio" -> {
 
                                 InicioScreen(
+                                    favoritos = favoritos,
+
+                                    onAgregarFavorito = { producto ->
+
+                                        val yaExiste = favoritos.any {
+                                            it.id == producto.id
+                                        }
+
+                                        if (!yaExiste) {
+                                            favoritos.add(producto)
+                                        }
+                                    },
+
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .padding(innerPadding)
@@ -143,6 +161,8 @@ class MainActivity : ComponentActivity() {
                             "Favoritos" -> {
 
                                 FavoritosScreen(
+                                    favoritos = favoritos,
+
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .padding(innerPadding)
