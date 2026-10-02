@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.cerron.tecsupstore.data.categorias
 import com.cerron.tecsupstore.data.productos
 import com.cerron.tecsupstore.model.Producto
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 
 @Composable
 fun InicioScreen(
@@ -167,19 +169,47 @@ fun ProductoCard(
                         expanded = true
                     }
                 ) {
-
                     Text(
                         text = "⋮",
                         style = MaterialTheme.typography.headlineSmall
                     )
                 }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = {
+                        expanded = false
+                    }
+                ) {
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Favoritos")
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Compartir")
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Reportar")
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
-    }
-
-    // expanded se utilizará en el siguiente paso
-    // cuando implementemos DropdownMenu.
-    if (expanded) {
-        // Todavía no mostramos el menú en este primer hito.
     }
 }
