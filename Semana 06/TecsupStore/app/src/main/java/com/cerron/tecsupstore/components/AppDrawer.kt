@@ -13,7 +13,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AppDrawer() {
+fun AppDrawer(
+    onInicioClick: () -> Unit,
+    onPedidosClick: () -> Unit,
+    onFavoritosClick: () -> Unit,
+    onPerfilClick: () -> Unit
+) {
 
     ModalDrawerSheet {
 
@@ -33,10 +38,8 @@ fun AppDrawer() {
             label = {
                 Text("Inicio")
             },
-            selected = true,
-            onClick = {
-                // La navegación se implementará en el siguiente hito
-            }
+            selected = false,
+            onClick = onInicioClick
         )
 
         NavigationDrawerItem(
@@ -44,9 +47,7 @@ fun AppDrawer() {
                 Text("Mis pedidos")
             },
             selected = false,
-            onClick = {
-                // La navegación se implementará en el siguiente hito
-            }
+            onClick = onPedidosClick
         )
 
         NavigationDrawerItem(
@@ -54,9 +55,7 @@ fun AppDrawer() {
                 Text("Favoritos")
             },
             selected = false,
-            onClick = {
-                // La navegación se implementará en el siguiente hito
-            }
+            onClick = onFavoritosClick
         )
 
         NavigationDrawerItem(
@@ -64,11 +63,7 @@ fun AppDrawer() {
                 Text("Perfil")
             },
             selected = false,
-            onClick = {
-                // La navegación se implementará en el siguiente hito
-            }
+            onClick = onPerfilClick
         )
     }
 }
-
-
