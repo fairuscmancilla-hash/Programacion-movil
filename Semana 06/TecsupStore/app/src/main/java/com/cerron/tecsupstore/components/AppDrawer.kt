@@ -1,5 +1,6 @@
 package com.cerron.tecsupstore.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun AppDrawer(
+    pantallaActual: String,
     onInicioClick: () -> Unit,
     onPedidosClick: () -> Unit,
     onFavoritosClick: () -> Unit,
@@ -22,11 +24,34 @@ fun AppDrawer(
 
     ModalDrawerSheet {
 
-        Text(
-            text = "TECSUP Store",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(24.dp)
-        )
+        // Encabezado del usuario
+        Column(
+            modifier = Modifier.padding(
+                start = 24.dp,
+                end = 24.dp,
+                top = 32.dp,
+                bottom = 20.dp
+            )
+        ) {
+
+            Text(
+                text = "TECSUP Store",
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Text(
+                text = "Yajaira Cerron",
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = "yajaira@tecsup.edu.pe"
+            )
+        }
 
         HorizontalDivider()
 
@@ -38,7 +63,7 @@ fun AppDrawer(
             label = {
                 Text("Inicio")
             },
-            selected = false,
+            selected = pantallaActual == "Inicio",
             onClick = onInicioClick
         )
 
@@ -46,7 +71,7 @@ fun AppDrawer(
             label = {
                 Text("Mis pedidos")
             },
-            selected = false,
+            selected = pantallaActual == "Mis pedidos",
             onClick = onPedidosClick
         )
 
@@ -54,7 +79,7 @@ fun AppDrawer(
             label = {
                 Text("Favoritos")
             },
-            selected = false,
+            selected = pantallaActual == "Favoritos",
             onClick = onFavoritosClick
         )
 
@@ -62,7 +87,7 @@ fun AppDrawer(
             label = {
                 Text("Perfil")
             },
-            selected = false,
+            selected = pantallaActual == "Perfil",
             onClick = onPerfilClick
         )
     }

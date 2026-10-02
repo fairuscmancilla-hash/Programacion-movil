@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
                     drawerContent = {
 
                         AppDrawer(
-
+                            pantallaActual = pantallaActual,
                             onInicioClick = {
                                 pantallaActual = "Inicio"
 
