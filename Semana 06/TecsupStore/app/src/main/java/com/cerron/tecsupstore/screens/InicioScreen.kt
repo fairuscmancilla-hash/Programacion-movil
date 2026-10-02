@@ -52,28 +52,8 @@ fun InicioScreen(
         }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(top = 16.dp)
+        modifier = modifier.fillMaxSize()
     ) {
-
-        Text(
-            text = "TECSUP Store",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        Text(
-            text = "Encuentra lo que necesitas",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 4.dp,
-                bottom = 12.dp
-            )
-        )
 
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),

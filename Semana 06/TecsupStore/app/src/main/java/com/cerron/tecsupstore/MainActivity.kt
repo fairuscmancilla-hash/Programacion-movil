@@ -28,6 +28,12 @@ import com.cerron.tecsupstore.screens.PedidosScreen
 import com.cerron.tecsupstore.screens.PerfilScreen
 import com.cerron.tecsupstore.ui.theme.TecsupstoreTheme
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import com.cerron.tecsupstore.ui.theme.MoradoPrincipal
 
 class MainActivity : ComponentActivity() {
 
@@ -94,6 +100,14 @@ class MainActivity : ComponentActivity() {
                                 scope.launch {
                                     drawerState.close()
                                 }
+                            },
+
+                            onCerrarSesionClick = {
+                                pantallaActual = "Inicio"
+
+                                scope.launch {
+                                    drawerState.close()
+                                }
                             }
                         )
                     }
@@ -106,22 +120,47 @@ class MainActivity : ComponentActivity() {
 
                             TopAppBar(
                                 title = {
-                                    Text(pantallaActual)
+                                    Column {
+                                        Text(
+                                            text = if (pantallaActual == "Inicio") {
+                                                "TECSUP Store"
+                                            } else {
+                                                pantallaActual
+                                            },
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+
+                                        if (pantallaActual == "Inicio") {
+                                            Text(
+                                                text = "Más vendidos",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = Color.White.copy(alpha = 0.8f)
+                                            )
+                                        }
+                                    }
                                 },
 
                                 navigationIcon = {
-
                                     IconButton(
                                         onClick = {
-
                                             scope.launch {
                                                 drawerState.open()
                                             }
                                         }
                                     ) {
-                                        Text("☰")
+                                        Text(
+                                            text = "☰",
+                                            color = Color.White
+                                        )
                                     }
-                                }
+                                },
+
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MoradoPrincipal,
+                                    titleContentColor = Color.White,
+                                    navigationIconContentColor = Color.White
+                                )
                             )
                         }
                     ) { innerPadding ->
