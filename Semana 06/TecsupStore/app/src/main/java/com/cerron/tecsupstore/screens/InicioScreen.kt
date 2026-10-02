@@ -29,6 +29,7 @@ import com.cerron.tecsupstore.data.productos
 import com.cerron.tecsupstore.model.Producto
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 
 @Composable
 fun InicioScreen(
@@ -174,7 +175,6 @@ fun ProductoCard(
                         style = MaterialTheme.typography.headlineSmall
                     )
                 }
-
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = {
@@ -186,23 +186,45 @@ fun ProductoCard(
                         text = {
                             Text("Favoritos")
                         },
-                        onClick = {
-                            expanded = false
-                        }
-                    )
-
-                    DropdownMenuItem(
-                        text = {
-                            Text("Compartir")
+                        leadingIcon = {
+                            Text(
+                                text = "♥",
+                                style = MaterialTheme.typography.titleMedium
+                            )
                         },
                         onClick = {
                             expanded = false
                         }
                     )
 
+                    HorizontalDivider()
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Compartir")
+                        },
+                        leadingIcon = {
+                            Text(
+                                text = "➤",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+
+                    HorizontalDivider()
+
                     DropdownMenuItem(
                         text = {
                             Text("Reportar")
+                        },
+                        leadingIcon = {
+                            Text(
+                                text = "⚠",
+                                style = MaterialTheme.typography.titleMedium
+                            )
                         },
                         onClick = {
                             expanded = false
