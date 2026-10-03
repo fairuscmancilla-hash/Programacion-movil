@@ -16,9 +16,7 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Input con label arriba (fuera del recuadro), como en los mockups
- * de Registro y Datos de entrega. Se usa en: Registro, Datos de entrega.
- *
- * @param teclado tipo de teclado, ej. KeyboardType.Phone para el teléfono
+ * de Registro y Datos de entrega.
  */
 @Composable
 fun CampoTexto(
@@ -27,29 +25,56 @@ fun CampoTexto(
     onValorCambia: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String? = null,
-    teclado: KeyboardType = KeyboardType.Text
+    teclado: KeyboardType = KeyboardType.Text,
+    esError: Boolean = false,
+    mensajeError: String = ""
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
+
         Text(
             text = etiqueta,
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onBackground
+            color = if (esError) {
+                MaterialTheme.colorScheme.error
+            } else {
+                MaterialTheme.colorScheme.onBackground
+            }
         )
+
         OutlinedTextField(
             value = valor,
             onValueChange = onValorCambia,
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             placeholder = placeholder?.let { { Text(it) } },
             singleLine = true,
             shape = RoundedCornerShape(10.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = teclado),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = teclado
+            ),
+
+            // Activa automáticamente el estilo rojo de Material 3
+            isError = esError,
+
+            supportingText = {
+                if (esError && mensajeError.isNotEmpty()) {
+                    Text(
+                        text = mensajeError,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                focusedBorderColor = MaterialTheme.colorScheme.primary
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                errorLabelColor = MaterialTheme.colorScheme.error,
+                errorSupportingTextColor = MaterialTheme.colorScheme.error
             )
         )
     }

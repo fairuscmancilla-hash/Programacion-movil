@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
@@ -38,20 +38,29 @@ import com.tecsup.mibodega.ui.theme.BodegaTheme
 import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
-/**
- * Pantalla 2: Registro de datos (mockup "Cliente").
- * Guarda su propio estado de formulario (remember) porque solo esta
- * pantalla lo necesita. Al enviar, entrega los datos ya listos.
- */
 @Composable
 fun RegistroScreen(
     onVolver: () -> Unit,
-    onCrearCuenta: (nombre: String, telefono: String, direccion: String, referencia: String) -> Unit
+    onCrearCuenta: (
+        nombre: String,
+        telefono: String,
+        direccion: String,
+        referencia: String
+    ) -> Unit
 ) {
     var nombre by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
     var direccion by remember { mutableStateOf("") }
     var referencia by remember { mutableStateOf("") }
+
+    // Controla cuándo se deben mostrar los errores.
+    var intentoCrearCuenta by remember { mutableStateOf(false) }
+
+    // Validaciones de campos vacíos.
+    val errorNombre = intentoCrearCuenta && nombre.isBlank()
+    val errorTelefono = intentoCrearCuenta && telefono.isBlank()
+    val errorDireccion = intentoCrearCuenta && direccion.isBlank()
+    val errorReferencia = intentoCrearCuenta && referencia.isBlank()
 
     Column(
         modifier = Modifier
@@ -60,6 +69,7 @@ fun RegistroScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp)
     ) {
+
         EncabezadoRegistro(onVolver = onVolver)
 
         Spacer(Modifier.height(24.dp))
@@ -85,8 +95,11 @@ fun RegistroScreen(
             etiqueta = "Nombre completo",
             valor = nombre,
             onValorCambia = { nombre = it },
-            placeholder = "Juan Pérez"
+            placeholder = "Juan Pérez",
+            esError = errorNombre,
+            mensajeError = "El nombre es obligatorio"
         )
+
         Spacer(Modifier.height(16.dp))
 
         CampoTexto(
@@ -94,30 +107,54 @@ fun RegistroScreen(
             valor = telefono,
             onValorCambia = { telefono = it },
             placeholder = "987 654 321",
-            teclado = KeyboardType.Phone
+            teclado = KeyboardType.Phone,
+            esError = errorTelefono,
+            mensajeError = "El teléfono es obligatorio"
         )
+
         Spacer(Modifier.height(16.dp))
 
         CampoTexto(
             etiqueta = "Dirección de entrega",
             valor = direccion,
             onValorCambia = { direccion = it },
-            placeholder = "Av. Los Olivos 123"
+            placeholder = "Av. Los Olivos 123",
+            esError = errorDireccion,
+            mensajeError = "La dirección es obligatoria"
         )
+
         Spacer(Modifier.height(16.dp))
 
         CampoTexto(
             etiqueta = "Referencia",
             valor = referencia,
             onValorCambia = { referencia = it },
-            placeholder = "Frente al parque"
+            placeholder = "Frente al parque",
+            esError = errorReferencia,
+            mensajeError = "La referencia es obligatoria"
         )
 
         Spacer(Modifier.height(28.dp))
 
         BotonPrimario(
             texto = "Crear cuenta",
-            onClick = { onCrearCuenta(nombre, telefono, direccion, referencia) }
+            onClick = {
+                intentoCrearCuenta = true
+
+                if (
+                    nombre.isNotBlank() &&
+                    telefono.isNotBlank() &&
+                    direccion.isNotBlank() &&
+                    referencia.isNotBlank()
+                ) {
+                    onCrearCuenta(
+                        nombre.trim(),
+                        telefono.trim(),
+                        direccion.trim(),
+                        referencia.trim()
+                    )
+                }
+            }
         )
 
         Spacer(Modifier.height(24.dp))
@@ -133,19 +170,26 @@ private fun EncabezadoRegistro(onVolver: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
+
         IconButton(
             onClick = onVolver,
             modifier = Modifier.align(Alignment.CenterVertically)
         ) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+            Icon(
+                Icons.Default.ArrowBack,
+                contentDescription = "Volver"
+            )
         }
+
         Text(
             text = "Crear cuenta",
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.weight(1f, fill = false)
         )
-        Spacer(Modifier.size(48.dp)) // balancea el ancho del ícono de la izquierda
+
+        Spacer(Modifier.size(48.dp))
     }
+
     Text(
         text = "Completa tus datos para continuar",
         style = MaterialTheme.typography.bodySmall,
@@ -159,7 +203,10 @@ private fun EncabezadoRegistro(onVolver: () -> Unit) {
 @Composable
 private fun RegistroPreview() {
     BodegaTheme {
-        RegistroScreen(onVolver = {}, onCrearCuenta = { _, _, _, _ -> })
+        RegistroScreen(
+            onVolver = {},
+            onCrearCuenta = { _, _, _, _ -> }
+        )
     }
 }
 
