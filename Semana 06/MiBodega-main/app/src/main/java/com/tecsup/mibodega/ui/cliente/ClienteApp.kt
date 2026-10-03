@@ -20,6 +20,9 @@ import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
 import com.tecsup.mibodega.ui.cliente.screens.login.LoginScreen
+import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
+import com.tecsup.mibodega.ui.cliente.modelo.Pedido
+import com.tecsup.mibodega.ui.cliente.screens.pedidos.MisPedidosScreen
 
 /**
  * "Director de orquesta" de la app cliente:
@@ -39,6 +42,9 @@ private object Rutas {
 
     const val ENTREGA = "entrega"
 
+    const val CONFIRMACION = "confirmacion"
+
+    const val MIS_PEDIDOS = "mis_pedidos"
     fun detalle(productoId: Int) = "detalle/$productoId"
 }
 
@@ -48,6 +54,9 @@ fun ClienteApp() {
 
     // El carrito vive aquí arriba, no en ninguna Screen.
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
+    var pedidos by remember {
+        mutableStateOf<List<Pedido>>(emptyList())
+    }
 
     NavHost(
         navController = navController,
@@ -97,7 +106,10 @@ fun ClienteApp() {
                     navController.navigate(Rutas.detalle(producto.id))
                 },
                 onAgregarProducto = { producto ->
-                    carrito = agregarOSumarProducto(carrito, producto, 1)
+                    carrito = agregarOSumarProducto(carrito, producto, cantidad = 1)
+                },
+                onVerPedidos = {
+                    navController.navigate(Rutas.MIS_PEDIDOS)
                 }
             )
         }
@@ -145,13 +157,73 @@ fun ClienteApp() {
                 }
             )
         }
+
         composable(Rutas.ENTREGA) {
             DatosEntregaScreen(
-                onVolver = {
-                    navController.popBackStack()
-                },
+                onVolver = { navController.popBackStack() },
                 onConfirmar = { nombre, telefono, direccion, referencia ->
-                    // Luego conectaremos aquí la pantalla de confirmación.
+
+                    val subtotal = carrito.sumOf {
+                        it.producto.precio * it.cantidad
+                    }
+
+                    val total = subtotal + 4.00
+
+                    val nuevoPedido = Pedido(
+                        id = pedidos.size + 1,
+                        productos = carrito.toList(),
+                        total = total,
+                        nombreCliente = nombre,
+                        direccion = direccion,
+                        estado = "Confirmado"
+                    )
+
+                    pedidos = pedidos + nuevoPedido
+
+                    navController.navigate(Rutas.CONFIRMACION)
+                }
+            )
+        }
+
+        composable(Rutas.CONFIRMACION) {
+
+            val ultimoPedido = pedidos.lastOrNull()
+            val totalPedido = ultimoPedido?.total ?: 0.0
+
+            ConfirmacionScreen(
+                total = totalPedido,
+
+                onVerPedidos = {
+                    carrito = emptyList()
+
+                    navController.navigate(Rutas.MIS_PEDIDOS) {
+                        popUpTo(Rutas.CONFIRMACION) {
+                            inclusive = true
+                        }
+                    }
+                },
+
+                onVolverInicio = {
+                    carrito = emptyList()
+
+                    navController.navigate(Rutas.INICIO) {
+                        popUpTo(Rutas.INICIO) {
+                            inclusive = false
+                        }
+                    }
+                }
+            )
+        }
+
+        composable(Rutas.MIS_PEDIDOS) {
+            MisPedidosScreen(
+                pedidos = pedidos,
+                onVolver = {
+                    navController.navigate(Rutas.INICIO) {
+                        popUpTo(Rutas.INICIO) {
+                            inclusive = false
+                        }
+                    }
                 }
             )
         }
