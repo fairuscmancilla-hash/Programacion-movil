@@ -14,11 +14,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Search
@@ -31,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -54,12 +54,16 @@ import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
- * Pantalla 3: Inicio / Productos (mockup "Cliente").
- * La más completa: Scaffold (topBar + bottomBar), LazyRow de categorías
- * y LazyVerticalGrid de productos.
+ * Pantalla principal de productos.
  *
- * @param productos lista completa (fake por ahora, luego vendrá de un ViewModel)
- * @param cantidadCarrito para el badge del carrito en la topBar
+ * Permite:
+ * - Buscar productos.
+ * - Filtrar por categorías.
+ * - Agregar productos al carrito.
+ * - Marcar productos como favoritos.
+ * - Abrir el carrito.
+ * - Abrir favoritos.
+ * - Abrir el historial de pedidos.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,63 +73,128 @@ fun InicioScreen(
     onVerCarrito: () -> Unit,
     onProductoClick: (Producto) -> Unit,
     onAgregarProducto: (Producto) -> Unit,
-    onVerPedidos: () -> Unit
+    onVerPedidos: () -> Unit,
+    onVerFavoritos: () -> Unit,
+    favoritos: List<Producto>,
+    onFavoritoClick: (Producto) -> Unit
 ) {
-    var categoriaSeleccionada by remember { mutableStateOf(listaCategorias.first()) }
-    var textoBusqueda by remember { mutableStateOf("") }
+
+    var categoriaSeleccionada by remember {
+        mutableStateOf(listaCategorias.first())
+    }
+
+    var textoBusqueda by remember {
+        mutableStateOf("")
+    }
 
     val productosFiltrados = productos.filter { producto ->
-        val coincideCategoria = categoriaSeleccionada == "Todos" || producto.categoria == categoriaSeleccionada
-        val coincideBusqueda = producto.nombre.contains(textoBusqueda, ignoreCase = true)
+
+        val coincideCategoria =
+            categoriaSeleccionada == "Todos" ||
+                    producto.categoria == categoriaSeleccionada
+
+        val coincideBusqueda =
+            producto.nombre.contains(
+                textoBusqueda,
+                ignoreCase = true
+            )
+
         coincideCategoria && coincideBusqueda
     }
 
     Scaffold(
+
         topBar = {
+
             TopAppBar(
-                title = { Text("Mi Bodega", fontWeight = FontWeight.Bold) },
+
+                title = {
+                    Text(
+                        text = "Mi Bodega",
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+
                 actions = {
-                    IconButton(onClick = onVerCarrito) {
+
+                    IconButton(
+                        onClick = onVerCarrito
+                    ) {
+
                         BadgedBox(
+
                             badge = {
+
                                 if (cantidadCarrito > 0) {
-                                    Badge { Text("$cantidadCarrito") }
+                                    Badge {
+                                        Text(
+                                            text = "$cantidadCarrito"
+                                        )
+                                    }
                                 }
                             }
+
                         ) {
-                            Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito")
+
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Carrito"
+                            )
                         }
                     }
                 }
             )
         },
+
         bottomBar = {
+
             BarraInferior(
+                onVerFavoritos = onVerFavoritos,
                 onVerPedidos = onVerPedidos
             )
         }
 
     ) { paddingInterno ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingInterno)
                 .padding(horizontal = 16.dp)
         ) {
+
+            // BUSCADOR
             OutlinedTextField(
                 value = textoBusqueda,
-                onValueChange = { textoBusqueda = it },
+
+                onValueChange = {
+                    textoBusqueda = it
+                },
+
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                placeholder = { Text("Buscar productos...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+
+                placeholder = {
+                    Text("Buscar productos...")
+                },
+
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null
+                    )
+                },
+
                 singleLine = true,
+
                 shape = RoundedCornerShape(12.dp),
+
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedContainerColor = GrisClaro,
                     focusedContainerColor = GrisClaro,
-                    unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                    unfocusedBorderColor =
+                        androidx.compose.ui.graphics.Color.Transparent,
                     focusedBorderColor = VerdeBodega
                 )
             )
@@ -133,34 +202,72 @@ fun InicioScreen(
             Text(
                 text = "Productos destacados",
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 20.dp, bottom = 4.dp)
+                modifier = Modifier.padding(
+                    top = 20.dp,
+                    bottom = 4.dp
+                )
             )
 
+            // CATEGORÍAS
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 8.dp)
+                contentPadding = PaddingValues(
+                    vertical = 8.dp
+                )
             ) {
+
                 items(listaCategorias) { categoria ->
+
                     ChipCategoria(
                         texto = categoria,
-                        seleccionado = categoria == categoriaSeleccionada,
-                        onClick = { categoriaSeleccionada = categoria }
+
+                        seleccionado =
+                            categoria == categoriaSeleccionada,
+
+                        onClick = {
+                            categoriaSeleccionada = categoria
+                        }
                     )
                 }
             }
 
+            // PRODUCTOS
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(vertical = 12.dp),
+
+                horizontalArrangement =
+                    Arrangement.spacedBy(12.dp),
+
+                verticalArrangement =
+                    Arrangement.spacedBy(12.dp),
+
+                contentPadding =
+                    PaddingValues(vertical = 12.dp),
+
                 modifier = Modifier.fillMaxSize()
             ) {
+
                 items(productosFiltrados) { producto ->
+
                     ProductoCard(
+
                         producto = producto,
-                        onClick = { onProductoClick(producto) },
-                        onAgregar = { onAgregarProducto(producto) }
+
+                        onClick = {
+                            onProductoClick(producto)
+                        },
+
+                        onAgregar = {
+                            onAgregarProducto(producto)
+                        },
+
+                        esFavorito = favoritos.any { favorito ->
+                            favorito.id == producto.id
+                        },
+
+                        onFavoritoClick = {
+                            onFavoritoClick(producto)
+                        }
                     )
                 }
             }
@@ -168,7 +275,10 @@ fun InicioScreen(
     }
 }
 
-// Sub-composables PRIVADOS: solo los usa esta pantalla.
+
+// ----------------------------------------------------
+// CHIP DE CATEGORÍA
+// ----------------------------------------------------
 
 @Composable
 private fun ChipCategoria(
@@ -176,62 +286,171 @@ private fun ChipCategoria(
     seleccionado: Boolean,
     onClick: () -> Unit
 ) {
-    val fondo = if (seleccionado) VerdeBodega else GrisClaro
-    val contenido = if (seleccionado) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+
+    val fondo =
+        if (seleccionado) {
+            VerdeBodega
+        } else {
+            GrisClaro
+        }
+
+    val contenido =
+        if (seleccionado) {
+            MaterialTheme.colorScheme.onPrimary
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        }
 
     Row(
         modifier = Modifier
-            .background(fondo, RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .background(
+                fondo,
+                RoundedCornerShape(20.dp)
+            )
+            .clickable(
+                onClick = onClick
+            )
+            .padding(
+                horizontal = 16.dp,
+                vertical = 10.dp
+            )
     ) {
-        Text(text = texto, color = contenido, fontWeight = FontWeight.Medium)
+
+        Text(
+            text = texto,
+            color = contenido,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 
+
+// ----------------------------------------------------
+// BARRA INFERIOR
+// ----------------------------------------------------
+
 @Composable
 private fun BarraInferior(
+    onVerFavoritos: () -> Unit,
     onVerPedidos: () -> Unit
 ) {
-    var seleccionado by remember { mutableStateOf(0) }
+
+    var seleccionado by remember {
+        mutableStateOf(0)
+    }
+
     val items = listOf(
-        Triple("Inicio", Icons.Default.Home, 0),
-        Triple("Categorías", Icons.Default.List, 1),
-        Triple("Pedidos", Icons.Default.Receipt, 2),
-        Triple("Perfil", Icons.Default.Person, 3)
+
+        Triple(
+            "Inicio",
+            Icons.Default.Home,
+            0
+        ),
+
+        Triple(
+            "Favoritos",
+            Icons.Default.Favorite,
+            1
+        ),
+
+        Triple(
+            "Pedidos",
+            Icons.Default.Receipt,
+            2
+        ),
+
+        Triple(
+            "Perfil",
+            Icons.Default.Person,
+            3
+        )
     )
+
     NavigationBar {
+
         items.forEach { (etiqueta, icono, indice) ->
+
             NavigationBarItem(
-                selected = seleccionado == indice,
+
+                selected =
+                    seleccionado == indice,
+
                 onClick = {
+
                     seleccionado = indice
 
-                    if (indice == 2) {
-                        onVerPedidos()
+                    when (indice) {
+
+                        1 -> {
+                            onVerFavoritos()
+                        }
+
+                        2 -> {
+                            onVerPedidos()
+                        }
                     }
                 },
-                icon = { Icon(icono, contentDescription = etiqueta) },
-                label = { Text(etiqueta) },
-                colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
-                    selectedIconColor = VerdeBodega,
-                    selectedTextColor = VerdeBodega
-                )
+
+                icon = {
+
+                    Icon(
+                        imageVector = icono,
+                        contentDescription = etiqueta
+                    )
+                },
+
+                label = {
+
+                    Text(
+                        text = etiqueta
+                    )
+                },
+
+                colors =
+                    NavigationBarItemDefaults.colors(
+
+                        selectedIconColor =
+                            VerdeBodega,
+
+                        selectedTextColor =
+                            VerdeBodega
+                    )
             )
         }
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+
+// ----------------------------------------------------
+// PREVIEW
+// ----------------------------------------------------
+
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
 @Composable
 private fun InicioPreview() {
+
     BodegaTheme {
+
         InicioScreen(
+
             cantidadCarrito = 3,
+
             onVerCarrito = {},
+
             onProductoClick = {},
+
             onAgregarProducto = {},
-            onVerPedidos = {}
+
+            onVerPedidos = {},
+
+            onVerFavoritos = {},
+
+            favoritos = emptyList(),
+
+            onFavoritoClick = {}
         )
     }
 }

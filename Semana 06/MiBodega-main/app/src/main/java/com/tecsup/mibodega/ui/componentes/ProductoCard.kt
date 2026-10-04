@@ -1,7 +1,7 @@
 package com.tecsup.mibodega.ui.componentes
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +15,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -25,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -34,43 +37,86 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
  * Tarjeta de producto usada en el grid de Inicio.
- * Solo muestra datos y avisa cuando la tocan o cuando tocan "+";
- * no sabe nada de navegación ni del carrito.
+ * Permite abrir el producto, agregarlo al carrito
+ * y marcarlo o desmarcarlo como favorito.
  */
 @Composable
 fun ProductoCard(
     producto: Producto,
     onClick: () -> Unit,
     onAgregar: () -> Unit,
+    esFavorito: Boolean,
+    onFavoritoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp
+        )
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
-            // Placeholder de imagen: reemplázalo por Image(painterResource(...))
-            // cuando tengan las fotos reales de cada producto.
+        Column(
+            modifier = Modifier.padding(10.dp)
+        ) {
+
+            // Imagen temporal del producto + botón de favorito
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1.3f)
-                    .background(GrisClaro, RoundedCornerShape(10.dp)),
-                contentAlignment = Alignment.Center
+                    .background(
+                        color = GrisClaro,
+                        shape = RoundedCornerShape(10.dp)
+                    )
             ) {
+
+                // Icono central del producto
                 Icon(
                     imageVector = Icons.Default.ShoppingBasket,
                     contentDescription = producto.nombre,
                     tint = VerdeBodega,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier
+                        .size(36.dp)
+                        .align(Alignment.Center)
                 )
+
+                // Corazón de favoritos
+                IconButton(
+                    onClick = onFavoritoClick,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = if (esFavorito) {
+                            Icons.Default.Favorite
+                        } else {
+                            Icons.Default.FavoriteBorder
+                        },
+                        contentDescription = if (esFavorito) {
+                            "Quitar de favoritos"
+                        } else {
+                            "Agregar a favoritos"
+                        },
+                        tint = if (esFavorito) {
+                            Color.Red
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                }
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
 
+            // Nombre del producto
             Text(
                 text = producto.nombre,
                 style = MaterialTheme.typography.bodyMedium,
@@ -79,21 +125,27 @@ fun ProductoCard(
                 overflow = TextOverflow.Ellipsis
             )
 
+            // Precio + botón agregar
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Text(
                     text = "S/ %.2f".format(producto.precio),
                     style = MaterialTheme.typography.labelMedium,
                     color = VerdeBodega
                 )
+
                 IconButton(
                     onClick = onAgregar,
                     modifier = Modifier
                         .size(30.dp)
-                        .background(VerdeBodega, CircleShape)
+                        .background(
+                            color = VerdeBodega,
+                            shape = CircleShape
+                        )
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -106,4 +158,3 @@ fun ProductoCard(
         }
     }
 }
-

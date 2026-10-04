@@ -23,6 +23,7 @@ import com.tecsup.mibodega.ui.cliente.screens.login.LoginScreen
 import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.modelo.Pedido
 import com.tecsup.mibodega.ui.cliente.screens.pedidos.MisPedidosScreen
+import com.tecsup.mibodega.ui.cliente.screens.favoritos.FavoritosScreen
 
 /**
  * "Director de orquesta" de la app cliente:
@@ -39,12 +40,12 @@ private object Rutas {
     const val INICIO = "inicio"
     const val DETALLE = "detalle/{productoId}"
     const val CARRITO = "carrito"
-
     const val ENTREGA = "entrega"
-
     const val CONFIRMACION = "confirmacion"
-
     const val MIS_PEDIDOS = "mis_pedidos"
+    const val FAVORITOS = "favoritos"
+
+
     fun detalle(productoId: Int) = "detalle/$productoId"
 }
 
@@ -56,6 +57,9 @@ fun ClienteApp() {
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
     var pedidos by remember {
         mutableStateOf<List<Pedido>>(emptyList())
+    }
+    var favoritos by remember {
+        mutableStateOf<List<Producto>>(emptyList())
     }
 
     NavHost(
@@ -99,23 +103,58 @@ fun ClienteApp() {
         }
 
         composable(Rutas.INICIO) {
+
             InicioScreen(
+
                 cantidadCarrito = carrito.sumOf { it.cantidad },
-                onVerCarrito = { navController.navigate(Rutas.CARRITO) },
+
+                onVerCarrito = {
+                    navController.navigate(Rutas.CARRITO)
+                },
+
                 onProductoClick = { producto ->
                     navController.navigate(Rutas.detalle(producto.id))
                 },
+
                 onAgregarProducto = { producto ->
-                    carrito = agregarOSumarProducto(carrito, producto, cantidad = 1)
+                    carrito = agregarOSumarProducto(
+                        carrito,
+                        producto,
+                        cantidad = 1
+                    )
                 },
+
                 onVerPedidos = {
                     navController.navigate(Rutas.MIS_PEDIDOS)
+                },
+
+                onVerFavoritos = {
+                    navController.navigate(Rutas.FAVORITOS)
+                },
+
+                favoritos = favoritos,
+
+                onFavoritoClick = { producto ->
+
+                    val yaEsFavorito = favoritos.any { favorito ->
+                        favorito.id == producto.id
+                    }
+
+                    favoritos = if (yaEsFavorito) {
+
+                        favoritos.filterNot { favorito ->
+                            favorito.id == producto.id
+                        }
+
+                    } else {
+
+                        favoritos + producto
+                    }
                 }
             )
         }
 
-        composable(
-            route = Rutas.DETALLE,
+        composable(route = Rutas.DETALLE,
             arguments = listOf(navArgument("productoId") { type = NavType.IntType })
         ) { backStackEntry ->
             val productoId = backStackEntry.arguments?.getInt("productoId") ?: 0
@@ -223,6 +262,35 @@ fun ClienteApp() {
                         popUpTo(Rutas.INICIO) {
                             inclusive = false
                         }
+                    }
+                }
+            )
+        }
+        composable(Rutas.FAVORITOS) {
+
+            FavoritosScreen(
+                favoritos = favoritos,
+
+                onVolver = {
+                    navController.popBackStack()
+                },
+
+                onProductoClick = { producto ->
+                    navController.navigate(Rutas.detalle(producto.id))
+                },
+
+                onAgregarProducto = { producto ->
+                    carrito = agregarOSumarProducto(
+                        carrito,
+                        producto,
+                        cantidad = 1
+                    )
+                },
+
+                onFavoritoClick = { producto ->
+
+                    favoritos = favoritos.filterNot { favorito ->
+                        favorito.id == producto.id
                     }
                 }
             )
