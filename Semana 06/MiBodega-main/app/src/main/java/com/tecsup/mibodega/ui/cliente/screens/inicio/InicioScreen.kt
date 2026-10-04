@@ -75,6 +75,7 @@ fun InicioScreen(
     onAgregarProducto: (Producto) -> Unit,
     onVerPedidos: () -> Unit,
     onVerFavoritos: () -> Unit,
+    onVerPerfil: () -> Unit,
     favoritos: List<Producto>,
     onFavoritoClick: (Producto) -> Unit
 ) {
@@ -167,7 +168,8 @@ fun InicioScreen(
 
             BarraInferior(
                 onVerFavoritos = onVerFavoritos,
-                onVerPedidos = onVerPedidos
+                onVerPedidos = onVerPedidos,
+                onVerPerfil = onVerPerfil
             )
         }
 
@@ -421,7 +423,8 @@ private fun ChipOrden(
 @Composable
 private fun BarraInferior(
     onVerFavoritos: () -> Unit,
-    onVerPedidos: () -> Unit
+    onVerPedidos: () -> Unit,
+    onVerPerfil: () -> Unit
 ) {
 
     var seleccionado by remember {
@@ -476,6 +479,10 @@ private fun BarraInferior(
 
                         2 -> {
                             onVerPedidos()
+                        }
+
+                        3 -> {
+                            onVerPerfil()
                         }
                     }
                 },
@@ -539,7 +546,9 @@ private fun InicioPreview() {
 
             favoritos = emptyList(),
 
-            onFavoritoClick = {}
+            onFavoritoClick = {},
+
+            onVerPerfil = {},
         )
     }
 }
