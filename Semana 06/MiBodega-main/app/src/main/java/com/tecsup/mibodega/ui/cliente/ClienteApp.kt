@@ -25,6 +25,7 @@ import com.tecsup.mibodega.ui.cliente.screens.login.LoginScreen
 import com.tecsup.mibodega.ui.cliente.screens.pedidos.MisPedidosScreen
 import com.tecsup.mibodega.ui.cliente.screens.perfil.PerfilScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
+import com.tecsup.mibodega.ui.cliente.screens.terminos.TerminosScreen
 
 private object Rutas {
 
@@ -42,6 +43,9 @@ private object Rutas {
     const val MIS_PEDIDOS = "mis_pedidos"
     const val FAVORITOS = "favoritos"
     const val PERFIL = "perfil"
+
+    const val TERMINOS = "terminos"
+
 
     fun detalle(productoId: Int): String {
         return "detalle/$productoId"
@@ -100,7 +104,7 @@ fun ClienteApp(
                 },
 
                 onTerminos = {
-                    // TODO: abrir términos y condiciones
+                    navController.navigate(Rutas.TERMINOS)
                 }
             )
         }
@@ -255,8 +259,28 @@ fun ClienteApp(
 
                 producto = producto,
 
+                esFavorito = favoritos.any { favorito ->
+                    favorito.id == producto.id
+                },
+
                 onVolver = {
                     navController.popBackStack()
+                },
+
+                onFavoritoClick = { productoSeleccionado ->
+
+                    val yaEsFavorito = favoritos.any { favorito ->
+                        favorito.id == productoSeleccionado.id
+                    }
+
+                    favoritos =
+                        if (yaEsFavorito) {
+                            favoritos.filterNot { favorito ->
+                                favorito.id == productoSeleccionado.id
+                            }
+                        } else {
+                            favoritos + productoSeleccionado
+                        }
                 },
 
                 onAgregarAlCarrito = {
@@ -533,6 +557,14 @@ fun ClienteApp(
                     onModoOscuroChange(nuevoValor)
                 },
 
+                onVolver = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(Rutas.TERMINOS) {
+
+            TerminosScreen(
                 onVolver = {
                     navController.popBackStack()
                 }
