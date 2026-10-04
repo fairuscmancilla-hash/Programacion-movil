@@ -1,5 +1,6 @@
 package com.tecsup.mibodega.ui.componentes
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -28,17 +29,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
-import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
  * Tarjeta de producto usada en el grid de Inicio.
- * Permite abrir el producto, agregarlo al carrito
- * y marcarlo o desmarcarlo como favorito.
+ * Muestra la imagen real del producto, favoritos
+ * y permite agregarlo al carrito.
  */
 @Composable
 fun ProductoCard(
@@ -49,6 +51,7 @@ fun ProductoCard(
     onFavoritoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -57,41 +60,54 @@ fun ProductoCard(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
+            defaultElevation = 2.dp
         )
     ) {
+
         Column(
             modifier = Modifier.padding(10.dp)
         ) {
 
-            // Imagen temporal del producto + botón de favorito
+            // -----------------------------
+            // IMAGEN DEL PRODUCTO
+            // -----------------------------
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1.3f)
+                    .aspectRatio(1.15f)
                     .background(
-                        color = GrisClaro,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(10.dp)
                     )
             ) {
 
-                // Icono central del producto
-                Icon(
-                    imageVector = Icons.Default.ShoppingBasket,
+                Image(
+                    painter = painterResource(
+                        id = producto.imagenRes
+                    ),
                     contentDescription = producto.nombre,
-                    tint = VerdeBodega,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .size(36.dp)
-                        .align(Alignment.Center)
+                        .fillMaxSize()
+                        .padding(8.dp)
                 )
 
-                // Corazón de favoritos
+                // -----------------------------
+                // FAVORITO
+                // -----------------------------
                 IconButton(
                     onClick = onFavoritoClick,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .size(40.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.surface.copy(
+                                alpha = 0.85f
+                            ),
+                            shape = CircleShape
+                        )
                 ) {
+
                     Icon(
                         imageVector = if (esFavorito) {
                             Icons.Default.Favorite
@@ -113,10 +129,12 @@ fun ProductoCard(
             }
 
             Spacer(
-                modifier = Modifier.height(8.dp)
+                modifier = Modifier.height(10.dp)
             )
 
-            // Nombre del producto
+            // -----------------------------
+            // NOMBRE
+            // -----------------------------
             Text(
                 text = producto.nombre,
                 style = MaterialTheme.typography.bodyMedium,
@@ -125,7 +143,13 @@ fun ProductoCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            // Precio + botón agregar
+            Spacer(
+                modifier = Modifier.height(4.dp)
+            )
+
+            // -----------------------------
+            // PRECIO + AGREGAR
+            // -----------------------------
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -135,18 +159,20 @@ fun ProductoCard(
                 Text(
                     text = "S/ %.2f".format(producto.precio),
                     style = MaterialTheme.typography.labelMedium,
-                    color = VerdeBodega
+                    color = VerdeBodega,
+                    fontWeight = FontWeight.Bold
                 )
 
                 IconButton(
                     onClick = onAgregar,
                     modifier = Modifier
-                        .size(30.dp)
+                        .size(32.dp)
                         .background(
                             color = VerdeBodega,
                             shape = CircleShape
                         )
                 ) {
+
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Agregar ${producto.nombre}",
