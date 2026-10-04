@@ -198,15 +198,31 @@ fun ClienteApp() {
         }
 
         composable(Rutas.ENTREGA) {
+
             DatosEntregaScreen(
-                onVolver = { navController.popBackStack() },
-                onConfirmar = { nombre, telefono, direccion, referencia ->
+
+                onVolver = {
+                    navController.popBackStack()
+                },
+
+                onConfirmar = {
+                        nombre,
+                        telefono,
+                        direccion,
+                        referencia,
+                        tipoEntrega ->
 
                     val subtotal = carrito.sumOf {
                         it.producto.precio * it.cantidad
                     }
 
-                    val total = subtotal + 4.00
+                    val costoEnvio = if (tipoEntrega == "Delivery") {
+                        4.00
+                    } else {
+                        0.00
+                    }
+
+                    val total = subtotal + costoEnvio
 
                     val nuevoPedido = Pedido(
                         id = pedidos.size + 1,
@@ -223,6 +239,7 @@ fun ClienteApp() {
                 }
             )
         }
+
 
         composable(Rutas.CONFIRMACION) {
 
