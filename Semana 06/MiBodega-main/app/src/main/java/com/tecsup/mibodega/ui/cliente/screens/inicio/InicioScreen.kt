@@ -87,6 +87,10 @@ fun InicioScreen(
         mutableStateOf("")
     }
 
+    var ordenPrecio by remember {
+        mutableStateOf(0)
+    }
+
     val productosFiltrados = productos.filter { producto ->
 
         val coincideCategoria =
@@ -100,6 +104,19 @@ fun InicioScreen(
             )
 
         coincideCategoria && coincideBusqueda
+    }
+
+    val productosOrdenados = when (ordenPrecio) {
+
+        1 -> productosFiltrados.sortedBy { producto ->
+            producto.precio
+        }
+
+        2 -> productosFiltrados.sortedByDescending { producto ->
+            producto.precio
+        }
+
+        else -> productosFiltrados
     }
 
     Scaffold(
@@ -199,6 +216,38 @@ fun InicioScreen(
                 )
             )
 
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+
+                ChipOrden(
+                    texto = "Sin ordenar",
+                    seleccionado = ordenPrecio == 0,
+                    onClick = {
+                        ordenPrecio = 0
+                    }
+                )
+
+                ChipOrden(
+                    texto = "Menor precio",
+                    seleccionado = ordenPrecio == 1,
+                    onClick = {
+                        ordenPrecio = 1
+                    }
+                )
+
+                ChipOrden(
+                    texto = "Mayor precio",
+                    seleccionado = ordenPrecio == 2,
+                    onClick = {
+                        ordenPrecio = 2
+                    }
+                )
+            }
+
             Text(
                 text = "Productos destacados",
                 style = MaterialTheme.typography.titleMedium,
@@ -247,7 +296,7 @@ fun InicioScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
 
-                items(productosFiltrados) { producto ->
+                items(productosOrdenados) { producto ->
 
                     ProductoCard(
 
@@ -323,7 +372,47 @@ private fun ChipCategoria(
         )
     }
 }
+// ----------------------------------------------------
+// CHIP PARA ORDENAR POR PRECIO
+// ----------------------------------------------------
 
+@Composable
+private fun ChipOrden(
+    texto: String,
+    seleccionado: Boolean,
+    onClick: () -> Unit
+) {
+
+    val fondo = if (seleccionado) {
+        VerdeBodega
+    } else {
+        GrisClaro
+    }
+
+    val colorTexto = if (seleccionado) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+
+    Text(
+        text = texto,
+        color = colorTexto,
+        style = MaterialTheme.typography.labelMedium,
+        modifier = Modifier
+            .background(
+                color = fondo,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clickable {
+                onClick()
+            }
+            .padding(
+                horizontal = 12.dp,
+                vertical = 8.dp
+            )
+    )
+}
 
 // ----------------------------------------------------
 // BARRA INFERIOR
