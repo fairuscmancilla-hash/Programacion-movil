@@ -53,6 +53,9 @@ import com.tecsup.mibodega.ui.theme.BodegaTheme
 import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Alignment
 
 /**
  * Pantalla principal de productos.
@@ -299,43 +302,71 @@ fun InicioScreen(
             }
 
             // PRODUCTOS
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+            if (productosOrdenados.isEmpty()) {
 
-                horizontalArrangement =
-                    Arrangement.spacedBy(12.dp),
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-                verticalArrangement =
-                    Arrangement.spacedBy(12.dp),
+                        Text(
+                            text = "No se encontraron productos",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 12.dp)
+                        )
 
-                contentPadding =
-                    PaddingValues(vertical = 12.dp),
+                        Text(
+                            text = "Prueba con otro nombre o cambia la categoría",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
 
-                modifier = Modifier.fillMaxSize()
-            ) {
+            } else {
 
-                items(productosOrdenados) { producto ->
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(vertical = 12.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(productosOrdenados) { producto ->
 
-                    ProductoCard(
+                        ProductoCard(
+                            producto = producto,
 
-                        producto = producto,
+                            onClick = {
+                                onProductoClick(producto)
+                            },
 
-                        onClick = {
-                            onProductoClick(producto)
-                        },
+                            onAgregar = {
+                                onAgregarProducto(producto)
+                            },
 
-                        onAgregar = {
-                            onAgregarProducto(producto)
-                        },
+                            esFavorito = favoritos.any { favorito ->
+                                favorito.id == producto.id
+                            },
 
-                        esFavorito = favoritos.any { favorito ->
-                            favorito.id == producto.id
-                        },
-
-                        onFavoritoClick = {
-                            onFavoritoClick(producto)
-                        }
-                    )
+                            onFavoritoClick = {
+                                onFavoritoClick(producto)
+                            }
+                        )
+                    }
                 }
             }
         }
