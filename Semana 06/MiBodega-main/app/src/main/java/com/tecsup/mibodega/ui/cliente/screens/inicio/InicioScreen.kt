@@ -52,6 +52,7 @@ import com.tecsup.mibodega.ui.componentes.ProductoCard
 import com.tecsup.mibodega.ui.theme.BodegaTheme
 import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
+import androidx.compose.material.icons.filled.Close
 
 /**
  * Pantalla principal de productos.
@@ -203,6 +204,21 @@ fun InicioScreen(
                         imageVector = Icons.Default.Search,
                         contentDescription = null
                     )
+                },
+
+                trailingIcon = {
+                    if (textoBusqueda.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                textoBusqueda = ""
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Limpiar búsqueda"
+                            )
+                        }
+                    }
                 },
 
                 singleLine = true,
