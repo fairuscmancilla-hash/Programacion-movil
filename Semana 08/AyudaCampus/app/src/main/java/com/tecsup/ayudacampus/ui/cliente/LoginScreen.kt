@@ -41,6 +41,7 @@ import com.tecsup.ayudacampus.viewmodel.SesionViewModel
 @Composable
 fun LoginScreen(vm: SesionViewModel, onIngreso: (Rol) -> Unit, onRegistro: () -> Unit) {
     val error by vm.error.collectAsState()
+    val errores by vm.erroresLogin.collectAsState()
     val oscuro by vm.modoOscuro.collectAsState()
     var rol by rememberSaveable { mutableStateOf(Rol.CLIENTE) }
     var correo by rememberSaveable { mutableStateOf("") }
@@ -64,12 +65,14 @@ fun LoginScreen(vm: SesionViewModel, onIngreso: (Rol) -> Unit, onRegistro: () ->
 
             AyudaTextField(
                 correo, { correo = it; vm.limpiarError() },
-                etiqueta = "Correo", icono = Icons.Outlined.Email, teclado = KeyboardType.Email
+                etiqueta = "Correo", icono = Icons.Outlined.Email, teclado = KeyboardType.Email,
+                error = errores.correo
             )
             Spacer(Modifier.height(12.dp))
             AyudaTextField(
                 clave, { clave = it; vm.limpiarError() },
-                etiqueta = "Contraseña", icono = Icons.Outlined.Lock, esClave = true
+                etiqueta = "Contraseña", icono = Icons.Outlined.Lock, esClave = true,
+                error = errores.clave
             )
             Text(
                 "¿Olvidaste tu contraseña?",

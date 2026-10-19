@@ -15,6 +15,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/** algo@dominio.ext, sin espacios */
+private val FORMATO_CORREO = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
+
+data class ErroresLogin(val correo: String? = null, val clave: String? = null)
+
 data class ErroresRegistro(
     val nombre: String? = null,
     val correo: String? = null,
@@ -57,13 +62,27 @@ class SesionViewModel(
         }
     }
 
+    /** Errores junto a cada campo del login */
+    private val _erroresLogin = MutableStateFlow(ErroresLogin())
+    val erroresLogin: StateFlow<ErroresLogin> = _erroresLogin.asStateFlow()
+
     fun login(correo: String, clave: String, rolSeleccionado: Rol, onExito: (Rol) -> Unit) {
-        if (correo.isBlank() || clave.isBlank()) {
-            _error.value = "Ingresa tu correo y tu contraseña"
+        val c = correo.trim()
+        val errores = ErroresLogin(
+            correo = when {
+                c.isEmpty() -> "Ingresa tu correo"
+                !FORMATO_CORREO.matches(c) -> "Ingresa un correo válido (ej. nombre@campus.test)"
+                else -> null
+            },
+            clave = if (clave.isBlank()) "Ingresa tu contraseña" else null
+        )
+        _erroresLogin.value = errores
+        if (errores.correo != null || errores.clave != null) {
+            _error.value = null
             return
         }
         viewModelScope.launch {
-            val u = repo.login(correo.trim(), clave)
+            val u = repo.login(c, clave)
             when {
                 u == null -> _error.value = "Correo o contraseña incorrectos"
                 u.rol != rolSeleccionado.name ->
@@ -80,6 +99,7 @@ class SesionViewModel(
 
     fun limpiarError() {
         _error.value = null
+        _erroresLogin.value = ErroresLogin()
     }
 
     // ---------- Registro de estudiante ----------
@@ -95,7 +115,7 @@ class SesionViewModel(
         val c = correo.trim()
         val errores = ErroresRegistro(
             nombre = if (nombre.isBlank()) "Ingresa tu nombre" else null,
-            correo = if (!Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$").matches(c)) "Ingresa un correo válido" else null,
+            correo = if (!FORMATO_CORREO.matches(c)) "Ingresa un correo válido" else null,
             clave = if (clave.length < 4) "La contraseña debe tener al menos 4 caracteres" else null,
             confirmar = if (confirmar != clave) "Las contraseñas no coinciden" else null
         )
