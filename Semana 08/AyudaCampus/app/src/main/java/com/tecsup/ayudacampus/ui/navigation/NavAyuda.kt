@@ -47,11 +47,15 @@ import com.tecsup.ayudacampus.ui.cliente.MisTicketsScreen
 import com.tecsup.ayudacampus.ui.cliente.NuevoTicketScreen
 import com.tecsup.ayudacampus.ui.cliente.RegistroScreen
 import com.tecsup.ayudacampus.ui.cliente.SplashScreen
+import com.tecsup.ayudacampus.ui.soporte.BandejaScreen
 import com.tecsup.ayudacampus.ui.soporte.CategoriasScreen
+import com.tecsup.ayudacampus.ui.soporte.PanelScreen
 import com.tecsup.ayudacampus.viewmodel.AyudaViewModelFactory
+import com.tecsup.ayudacampus.viewmodel.BandejaViewModel
 import com.tecsup.ayudacampus.viewmodel.CategoriasViewModel
 import com.tecsup.ayudacampus.viewmodel.MisTicketsViewModel
 import com.tecsup.ayudacampus.viewmodel.NuevoTicketViewModel
+import com.tecsup.ayudacampus.viewmodel.PanelViewModel
 import com.tecsup.ayudacampus.viewmodel.SesionViewModel
 import com.tecsup.ayudacampus.viewmodel.TicketDetalleViewModel
 
@@ -161,8 +165,23 @@ fun NavAyuda(sesionVm: SesionViewModel) {
 
             // ---------- Soporte TI ----------
             navigation(startDestination = Rutas.PANEL, route = Rutas.GRAFO_SOPORTE) {
-                composable(Rutas.PANEL) { Pendiente("Panel de soporte", "Paso 10") }
-                composable(Rutas.BANDEJA) { Pendiente("Bandeja de tickets", "Paso 10") }
+                composable(Rutas.PANEL) {
+                    ConUsuario(usuario) { u ->
+                        val vm: PanelViewModel = viewModel(factory = fabrica())
+                        PanelScreen(
+                            vm,
+                            onVerAlertas = { nav.navigate(Rutas.bandeja("ABIERTO")) },
+                        )
+                    }
+                }
+                composable(
+                    Rutas.BANDEJA,
+                    arguments = listOf(navArgument("estado") { type = NavType.StringType; defaultValue = "" })
+                ) { e ->
+                    val estado = e.arguments?.getString("estado").orEmpty()
+                    val vm: BandejaViewModel = viewModel(key = "bandeja_$estado", factory = fabrica(filtro = estado))
+                    BandejaScreen(vm, onAtras = { nav.popBackStack() }, onAtender = { nav.navigate(Rutas.atender(it)) })
+                }
                 composable(Rutas.ATENDER) { Pendiente("Atender ticket", "Paso 11") }
                 composable(Rutas.CATEGORIAS) {
                     val vm: CategoriasViewModel = viewModel(factory = fabrica())

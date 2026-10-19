@@ -25,6 +25,8 @@ class AyudaViewModelFactory(
         MisTicketsViewModel::class.java -> MisTicketsViewModel(repo, requireNotNull(usuario))
         NuevoTicketViewModel::class.java -> NuevoTicketViewModel(repo, prefs, requireNotNull(usuario))
         TicketDetalleViewModel::class.java -> TicketDetalleViewModel(repo, requireNotNull(usuario), id)
+        PanelViewModel::class.java -> PanelViewModel(repo)
+        BandejaViewModel::class.java -> BandejaViewModel(repo, filtro)
         else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
     } as T
 }
