@@ -22,16 +22,33 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.tecsup.ayudacampus.data.local.entity.rolEnum
+import com.tecsup.ayudacampus.model.Rol
 import com.tecsup.ayudacampus.ui.components.AyudaButton
+import com.tecsup.ayudacampus.viewmodel.SesionViewModel
+import kotlinx.coroutines.delay
 
-// TODO (Paso 6): recibir SesionViewModel y saltar el login si ya hay perfil guardado
 @Composable
-fun SplashScreen(onComenzar: () -> Unit) {
+fun SplashScreen(vm: SesionViewModel, onIrLogin: () -> Unit, onIrPerfil: (Rol) -> Unit) {
+    val listo by vm.inicioListo.collectAsState()
+    val usuario by vm.usuarioActual.collectAsState()
     val colores = MaterialTheme.colorScheme
+
+    // Si ya hay perfil guardado, salta el login y va directo a su pantalla principal
+    LaunchedEffect(listo, usuario) {
+        val u = usuario
+        if (listo && u != null) {
+            delay(600)
+            onIrPerfil(u.rolEnum())
+        }
+    }
 
     Column(
         Modifier
@@ -57,9 +74,15 @@ fun SplashScreen(onComenzar: () -> Unit) {
             IconoSplash(Icons.Outlined.Print)
         }
         Spacer(Modifier.weight(1.4f))
-        AyudaButton("Comenzar", onClick = onComenzar)
-        TextButton(onClick = onComenzar, modifier = Modifier.fillMaxWidth()) {
-            Text("Ya tengo una cuenta", style = MaterialTheme.typography.labelSmall, color = colores.primary)
+
+        // Sin perfil guardado: el usuario entra al login desde aquí
+        if (listo && usuario == null) {
+            AyudaButton("Comenzar", onClick = onIrLogin)
+            TextButton(onClick = onIrLogin, modifier = Modifier.fillMaxWidth()) {
+                Text("Ya tengo una cuenta", style = MaterialTheme.typography.labelSmall, color = colores.primary)
+            }
+        } else {
+            Spacer(Modifier.height(100.dp))
         }
     }
 }

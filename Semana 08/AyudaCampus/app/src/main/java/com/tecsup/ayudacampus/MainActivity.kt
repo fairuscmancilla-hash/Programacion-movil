@@ -1,25 +1,44 @@
 package com.tecsup.ayudacampus
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tecsup.ayudacampus.data.local.entity.rolEnum
+import com.tecsup.ayudacampus.model.Rol
 import com.tecsup.ayudacampus.ui.navigation.NavAyuda
 import com.tecsup.ayudacampus.ui.theme.AyudaTheme
+import com.tecsup.ayudacampus.viewmodel.AyudaViewModelFactory
+import com.tecsup.ayudacampus.viewmodel.SesionViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val app = application as AyudaApp
         setContent {
-            AyudaTheme {
-                Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    NavAyuda()
-                }
+            val sesionVm: SesionViewModel = viewModel(
+                factory = AyudaViewModelFactory(app.repository, app.preferencias)
+            )
+            val oscuro by sesionVm.modoOscuro.collectAsState()
+            val usuario by sesionVm.usuarioActual.collectAsState()
+
+            // Íconos de la barra de estado según el modo guardado en DataStore
+            LaunchedEffect(oscuro) {
+                val estilo = if (oscuro) SystemBarStyle.dark(Color.TRANSPARENT)
+                else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+                enableEdgeToEdge(statusBarStyle = estilo, navigationBarStyle = estilo)
+            }
+
+            // El tema de TODA la app depende del perfil y del modo oscuro
+            AyudaTheme(rol = usuario?.rolEnum() ?: Rol.CLIENTE, oscuro = oscuro) {
+                NavAyuda(sesionVm)
             }
         }
     }
