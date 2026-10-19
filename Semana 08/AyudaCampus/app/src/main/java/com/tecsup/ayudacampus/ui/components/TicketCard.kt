@@ -25,6 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.tecsup.ayudacampus.data.local.entity.estadoEnum
+import com.tecsup.ayudacampus.data.local.entity.prioridadEnum
+import com.tecsup.ayudacampus.data.local.relation.TicketConDetalle
+import com.tecsup.ayudacampus.ui.theme.color
 
 @Composable
 fun IconoCategoria(icono: String?, modifier: Modifier = Modifier) {
@@ -42,3 +46,59 @@ fun IconoCategoria(icono: String?, modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun TicketCard(
+    detalle: TicketConDetalle,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    mostrarCliente: Boolean = false
+) {
+    val t = detalle.ticket
+    val colores = MaterialTheme.colorScheme
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = colores.surface),
+        border = BorderStroke(1.dp, colores.outlineVariant)
+    ) {
+        Row(Modifier.height(IntrinsicSize.Min)) {
+            // Franja de color según la prioridad
+            Box(
+                Modifier
+                    .width(5.dp)
+                    .fillMaxHeight()
+                    .background(t.prioridadEnum.color())
+            )
+            Row(Modifier.padding(14.dp)) {
+                IconoCategoria(detalle.categoria?.icono)
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        t.titulo, style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                    )
+                    val detalleLinea = if (mostrarCliente) nombreCorto(detalle.cliente?.nombre) else t.ubicacion
+                    Text(
+                        "${numeroTicket(t.id)}  ·  $detalleLinea",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colores.onSurfaceVariant,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        EstadoChip(t.estadoEnum)
+                        Spacer(Modifier.width(6.dp))
+                        PrioridadChip(t.prioridadEnum)
+                        Spacer(Modifier.weight(1f))
+                        Text(
+                            tiempoRelativo(t.fecha),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colores.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

@@ -22,6 +22,7 @@ class AyudaViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T = when (modelClass) {
         SesionViewModel::class.java -> SesionViewModel(repo, prefs)
         CategoriasViewModel::class.java -> CategoriasViewModel(repo)
+        MisTicketsViewModel::class.java -> MisTicketsViewModel(repo, requireNotNull(usuario))
         else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
     } as T
 }

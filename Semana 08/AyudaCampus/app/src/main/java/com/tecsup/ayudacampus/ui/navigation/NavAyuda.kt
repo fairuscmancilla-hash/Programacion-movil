@@ -42,11 +42,13 @@ import com.tecsup.ayudacampus.AyudaApp
 import com.tecsup.ayudacampus.data.local.entity.Usuario
 import com.tecsup.ayudacampus.model.Rol
 import com.tecsup.ayudacampus.ui.cliente.LoginScreen
+import com.tecsup.ayudacampus.ui.cliente.MisTicketsScreen
 import com.tecsup.ayudacampus.ui.cliente.RegistroScreen
 import com.tecsup.ayudacampus.ui.cliente.SplashScreen
 import com.tecsup.ayudacampus.ui.soporte.CategoriasScreen
 import com.tecsup.ayudacampus.viewmodel.AyudaViewModelFactory
 import com.tecsup.ayudacampus.viewmodel.CategoriasViewModel
+import com.tecsup.ayudacampus.viewmodel.MisTicketsViewModel
 import com.tecsup.ayudacampus.viewmodel.SesionViewModel
 
 private data class ItemNav(
@@ -120,7 +122,16 @@ fun NavAyuda(sesionVm: SesionViewModel) {
 
             // ---------- Estudiante ----------
             navigation(startDestination = Rutas.MIS_TICKETS, route = Rutas.GRAFO_CLIENTE) {
-                composable(Rutas.MIS_TICKETS) { Pendiente("Mis tickets", "Paso 7") }
+                composable(Rutas.MIS_TICKETS) {
+                    ConUsuario(usuario) { u ->
+                        val vm: MisTicketsViewModel = viewModel(key = "mis_${u.id}", factory = fabrica())
+                        MisTicketsScreen(
+                            vm, u,
+                            onAbrir = { nav.navigate(Rutas.detalle(it)) },
+                            onNuevo = { nav.navigate(Rutas.NUEVO_TICKET) { launchSingleTop = true } },
+                        )
+                    }
+                }
                 composable(Rutas.NUEVO_TICKET) { Pendiente("Nuevo ticket", "Paso 8") }
                 composable(Rutas.DETALLE) { Pendiente("Detalle del ticket", "Paso 9") }
                 composable(Rutas.PERFIL) { Pendiente("Perfil", "Paso 12") }
