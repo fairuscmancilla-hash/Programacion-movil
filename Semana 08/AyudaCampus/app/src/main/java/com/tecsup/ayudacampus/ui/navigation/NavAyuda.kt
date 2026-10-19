@@ -47,9 +47,12 @@ import com.tecsup.ayudacampus.ui.cliente.MisTicketsScreen
 import com.tecsup.ayudacampus.ui.cliente.NuevoTicketScreen
 import com.tecsup.ayudacampus.ui.cliente.RegistroScreen
 import com.tecsup.ayudacampus.ui.cliente.SplashScreen
+import com.tecsup.ayudacampus.ui.soporte.AtenderTicketScreen
 import com.tecsup.ayudacampus.ui.soporte.BandejaScreen
 import com.tecsup.ayudacampus.ui.soporte.CategoriasScreen
+import com.tecsup.ayudacampus.ui.soporte.FormularioCategoriaScreen
 import com.tecsup.ayudacampus.ui.soporte.PanelScreen
+import com.tecsup.ayudacampus.viewmodel.AtenderViewModel
 import com.tecsup.ayudacampus.viewmodel.AyudaViewModelFactory
 import com.tecsup.ayudacampus.viewmodel.BandejaViewModel
 import com.tecsup.ayudacampus.viewmodel.CategoriasViewModel
@@ -182,7 +185,16 @@ fun NavAyuda(sesionVm: SesionViewModel) {
                     val vm: BandejaViewModel = viewModel(key = "bandeja_$estado", factory = fabrica(filtro = estado))
                     BandejaScreen(vm, onAtras = { nav.popBackStack() }, onAtender = { nav.navigate(Rutas.atender(it)) })
                 }
-                composable(Rutas.ATENDER) { Pendiente("Atender ticket", "Paso 11") }
+                composable(
+                    Rutas.ATENDER,
+                    arguments = listOf(navArgument("ticketId") { type = NavType.IntType })
+                ) { e ->
+                    val id = e.arguments?.getInt("ticketId") ?: 0
+                    ConUsuario(usuario) { u ->
+                        val vm: AtenderViewModel = viewModel(key = "atender_$id", factory = fabrica(id))
+                        AtenderTicketScreen(vm, u, onAtras = { nav.popBackStack() })
+                    }
+                }
                 composable(Rutas.CATEGORIAS) {
                     val vm: CategoriasViewModel = viewModel(factory = fabrica())
                     CategoriasScreen(
@@ -191,7 +203,14 @@ fun NavAyuda(sesionVm: SesionViewModel) {
                         onEditar = { nav.navigate(Rutas.formCategoria(it)) }
                     )
                 }
-                composable(Rutas.FORM_CATEGORIA) { Pendiente("Formulario de categoría", "Paso 11") }
+                composable(
+                    Rutas.FORM_CATEGORIA,
+                    arguments = listOf(navArgument("categoriaId") { type = NavType.IntType })
+                ) { e ->
+                    val id = e.arguments?.getInt("categoriaId") ?: 0
+                    val vm: CategoriasViewModel = viewModel(factory = fabrica())
+                    FormularioCategoriaScreen(vm, id.takeIf { it > 0 }, onListo = { nav.popBackStack() })
+                }
                 composable(Rutas.AJUSTES) { Pendiente("Ajustes", "Paso 12") }
             }
         }
