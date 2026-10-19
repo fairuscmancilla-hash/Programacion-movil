@@ -41,6 +41,7 @@ import androidx.navigation.navArgument
 import com.tecsup.ayudacampus.AyudaApp
 import com.tecsup.ayudacampus.data.local.entity.Usuario
 import com.tecsup.ayudacampus.model.Rol
+import com.tecsup.ayudacampus.ui.cliente.DetalleTicketScreen
 import com.tecsup.ayudacampus.ui.cliente.LoginScreen
 import com.tecsup.ayudacampus.ui.cliente.MisTicketsScreen
 import com.tecsup.ayudacampus.ui.cliente.NuevoTicketScreen
@@ -52,6 +53,7 @@ import com.tecsup.ayudacampus.viewmodel.CategoriasViewModel
 import com.tecsup.ayudacampus.viewmodel.MisTicketsViewModel
 import com.tecsup.ayudacampus.viewmodel.NuevoTicketViewModel
 import com.tecsup.ayudacampus.viewmodel.SesionViewModel
+import com.tecsup.ayudacampus.viewmodel.TicketDetalleViewModel
 
 private data class ItemNav(
     val ruta: String,
@@ -144,7 +146,16 @@ fun NavAyuda(sesionVm: SesionViewModel) {
                         )
                     }
                 }
-                composable(Rutas.DETALLE) { Pendiente("Detalle del ticket", "Paso 9") }
+                composable(
+                    Rutas.DETALLE,
+                    arguments = listOf(navArgument("ticketId") { type = NavType.IntType })
+                ) { e ->
+                    val id = e.arguments?.getInt("ticketId") ?: 0
+                    ConUsuario(usuario) { u ->
+                        val vm: TicketDetalleViewModel = viewModel(key = "detalle_$id", factory = fabrica(id))
+                        DetalleTicketScreen(vm, u, onAtras = { nav.popBackStack() })
+                    }
+                }
                 composable(Rutas.PERFIL) { Pendiente("Perfil", "Paso 12") }
             }
 
