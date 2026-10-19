@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -49,6 +50,21 @@ class PreferenciasStore(private val context: Context) {
 
     suspend fun guardarRecibirTickets(b: Boolean) {
         context.dataStore.edit { it[Claves.RECIBIR_TICKETS] = b }
+    }
+
+    // Avisos de la campana, por perfil: hasta qué fecha se leyeron y hasta cuál ya salió notificación
+    private fun claveVistos(rol: String) = longPreferencesKey("avisosVistos_$rol")
+    private fun claveNotificados(rol: String) = longPreferencesKey("avisosNotificados_$rol")
+
+    fun avisosVistos(rol: String): Flow<Long> = context.dataStore.data.map { it[claveVistos(rol)] ?: 0L }
+    fun avisosNotificados(rol: String): Flow<Long> = context.dataStore.data.map { it[claveNotificados(rol)] ?: 0L }
+
+    suspend fun guardarAvisosVistos(rol: String, fecha: Long) {
+        context.dataStore.edit { it[claveVistos(rol)] = fecha }
+    }
+
+    suspend fun guardarAvisosNotificados(rol: String, fecha: Long) {
+        context.dataStore.edit { it[claveNotificados(rol)] = fecha }
     }
 
     suspend fun cerrarSesion() {

@@ -28,6 +28,7 @@ class AyudaViewModelFactory(
         PanelViewModel::class.java -> PanelViewModel(repo)
         BandejaViewModel::class.java -> BandejaViewModel(repo, filtro)
         AtenderViewModel::class.java -> AtenderViewModel(repo, requireNotNull(usuario), id)
+        AvisosViewModel::class.java -> AvisosViewModel(repo, prefs, requireNotNull(usuario))
         else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
     } as T
 }

@@ -45,14 +45,18 @@ import com.tecsup.ayudacampus.ui.cliente.DetalleTicketScreen
 import com.tecsup.ayudacampus.ui.cliente.LoginScreen
 import com.tecsup.ayudacampus.ui.cliente.MisTicketsScreen
 import com.tecsup.ayudacampus.ui.cliente.NuevoTicketScreen
+import com.tecsup.ayudacampus.ui.cliente.PerfilScreen
 import com.tecsup.ayudacampus.ui.cliente.RegistroScreen
 import com.tecsup.ayudacampus.ui.cliente.SplashScreen
+import com.tecsup.ayudacampus.ui.soporte.AjustesScreen
 import com.tecsup.ayudacampus.ui.soporte.AtenderTicketScreen
 import com.tecsup.ayudacampus.ui.soporte.BandejaScreen
 import com.tecsup.ayudacampus.ui.soporte.CategoriasScreen
 import com.tecsup.ayudacampus.ui.soporte.FormularioCategoriaScreen
 import com.tecsup.ayudacampus.ui.soporte.PanelScreen
+import com.tecsup.ayudacampus.ui.components.CampanaAvisos
 import com.tecsup.ayudacampus.viewmodel.AtenderViewModel
+import com.tecsup.ayudacampus.viewmodel.AvisosViewModel
 import com.tecsup.ayudacampus.viewmodel.AyudaViewModelFactory
 import com.tecsup.ayudacampus.viewmodel.BandejaViewModel
 import com.tecsup.ayudacampus.viewmodel.CategoriasViewModel
@@ -136,10 +140,12 @@ fun NavAyuda(sesionVm: SesionViewModel) {
                 composable(Rutas.MIS_TICKETS) {
                     ConUsuario(usuario) { u ->
                         val vm: MisTicketsViewModel = viewModel(key = "mis_${u.id}", factory = fabrica())
+                        val avisos: AvisosViewModel = viewModel(key = "avisos_${u.id}", factory = fabrica())
                         MisTicketsScreen(
                             vm, u,
                             onAbrir = { nav.navigate(Rutas.detalle(it)) },
                             onNuevo = { nav.navigate(Rutas.NUEVO_TICKET) { launchSingleTop = true } },
+                            campana = { CampanaAvisos(avisos) { nav.navigate(Rutas.detalle(it)) } }
                         )
                     }
                 }
@@ -163,7 +169,17 @@ fun NavAyuda(sesionVm: SesionViewModel) {
                         DetalleTicketScreen(vm, u, onAtras = { nav.popBackStack() })
                     }
                 }
-                composable(Rutas.PERFIL) { Pendiente("Perfil", "Paso 12") }
+                composable(Rutas.PERFIL) {
+                    ConUsuario(usuario) { u ->
+                        val vm: MisTicketsViewModel = viewModel(key = "perfil_${u.id}", factory = fabrica())
+                        PerfilScreen(
+                            sesionVm, vm, u,
+                            onAtras = { nav.popBackStack() },
+                            onCambiarPerfil = cambiarPerfil,
+                            onCerrarSesion = cerrarSesion
+                        )
+                    }
+                }
             }
 
             // ---------- Soporte TI ----------
@@ -171,9 +187,11 @@ fun NavAyuda(sesionVm: SesionViewModel) {
                 composable(Rutas.PANEL) {
                     ConUsuario(usuario) { u ->
                         val vm: PanelViewModel = viewModel(factory = fabrica())
+                        val avisos: AvisosViewModel = viewModel(key = "avisos_${u.id}", factory = fabrica())
                         PanelScreen(
                             vm,
                             onVerAlertas = { nav.navigate(Rutas.bandeja("ABIERTO")) },
+                            campana = { CampanaAvisos(avisos) { nav.navigate(Rutas.atender(it)) } }
                         )
                     }
                 }
@@ -211,7 +229,16 @@ fun NavAyuda(sesionVm: SesionViewModel) {
                     val vm: CategoriasViewModel = viewModel(factory = fabrica())
                     FormularioCategoriaScreen(vm, id.takeIf { it > 0 }, onListo = { nav.popBackStack() })
                 }
-                composable(Rutas.AJUSTES) { Pendiente("Ajustes", "Paso 12") }
+                composable(Rutas.AJUSTES) {
+                    ConUsuario(usuario) { u ->
+                        AjustesScreen(
+                            sesionVm, u,
+                            onAtras = { nav.popBackStack() },
+                            onCambiarPerfil = cambiarPerfil,
+                            onCerrarSesion = cerrarSesion
+                        )
+                    }
+                }
             }
         }
     }
@@ -254,13 +281,5 @@ private fun BarraInferior(ruta: String?, nav: NavHostController) {
                 )
             )
         }
-    }
-}
-
-/** Pantalla que todavía no se construye en este paso del laboratorio. */
-@Composable
-private fun Pendiente(titulo: String, paso: String) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("$titulo: se construye en el $paso", color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

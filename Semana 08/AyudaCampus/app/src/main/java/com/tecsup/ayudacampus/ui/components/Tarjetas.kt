@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tecsup.ayudacampus.data.local.entity.Usuario
 
 /** Contenedor blanco con borde, usado en todas las pantallas. */
 @Composable
@@ -68,6 +70,26 @@ fun Seccion(titulo: String, modifier: Modifier = Modifier) {
         fontWeight = FontWeight.Bold,
         modifier = modifier.padding(top = 16.dp, bottom = 8.dp)
     )
+}
+
+@Composable
+fun TarjetaUsuario(usuario: Usuario, insignia: String) {
+    Tarjeta {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.size(52.dp).background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Outlined.Person, null, tint = MaterialTheme.colorScheme.primary)
+            }
+            Spacer(Modifier.width(14.dp))
+            Column {
+                Text(usuario.nombre, style = MaterialTheme.typography.titleMedium)
+                Text(usuario.correo, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Etiqueta(insignia, MaterialTheme.colorScheme.primary, Modifier.padding(top = 4.dp))
+            }
+        }
+    }
 }
 
 @Composable

@@ -1,7 +1,12 @@
 package com.tecsup.ayudacampus
 
+import android.Manifest
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.tecsup.ayudacampus.ui.components.puedeNotificar
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -34,6 +39,15 @@ class MainActivity : ComponentActivity() {
                 val estilo = if (oscuro) SystemBarStyle.dark(Color.TRANSPARENT)
                 else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
                 enableEdgeToEdge(statusBarStyle = estilo, navigationBarStyle = estilo)
+            }
+
+            // Android 13+: pide permiso para las notificaciones si el switch está encendido
+            val notificaciones by sesionVm.notificaciones.collectAsState()
+            val pedirPermiso = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
+            LaunchedEffect(notificaciones) {
+                if (notificaciones && Build.VERSION.SDK_INT >= 33 && !puedeNotificar(this@MainActivity)) {
+                    pedirPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
             }
 
             // El tema de TODA la app depende del perfil y del modo oscuro
