@@ -11,6 +11,7 @@ import com.tecsup.ayudacampus.model.EstadoTicket
 import com.tecsup.ayudacampus.model.Prioridad
 import com.tecsup.ayudacampus.model.Rol
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class AyudaRepositoryRoom(db: AyudaDatabase) : AyudaRepository {
 
@@ -101,4 +102,7 @@ class AyudaRepositoryRoom(db: AyudaDatabase) : AyudaRepository {
 
     override fun observarAltasSinAtender(limite: Long): Flow<Int> =
         ticketDao.contarAltasSinAtender(limite)
+
+    override fun observarPromedioResolucion(): Flow<Long?> =
+        ticketDao.promedioResolucion().map { it?.toLong() }
 }

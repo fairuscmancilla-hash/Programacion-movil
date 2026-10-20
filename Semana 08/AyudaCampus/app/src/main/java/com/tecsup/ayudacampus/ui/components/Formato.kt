@@ -53,6 +53,19 @@ fun momento(fecha: Long): String {
 fun fechaCorta(fecha: Long): String =
     SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(fecha))
 
+/** 90 min -> "1 h 30 min"; 50 h -> "2 d 2 h" */
+fun duracion(milis: Long): String {
+    val minutos = (milis / 60_000).coerceAtLeast(0)
+    val dias = minutos / (24 * 60)
+    val horas = (minutos / 60) % 24
+    val min = minutos % 60
+    return when {
+        dias > 0 -> "$dias d $horas h"
+        minutos >= 60 -> "${minutos / 60} h $min min"
+        else -> "$min min"
+    }
+}
+
 /** "Juan Pérez" -> "Juan P." */
 fun nombreCorto(nombre: String?): String {
     if (nombre.isNullOrBlank()) return "—"

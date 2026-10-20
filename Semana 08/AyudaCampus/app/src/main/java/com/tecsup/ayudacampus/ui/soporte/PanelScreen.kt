@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import com.tecsup.ayudacampus.ui.components.scrollConBarra
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Timer
+import com.tecsup.ayudacampus.ui.components.duracion
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -45,6 +47,7 @@ fun PanelScreen(vm: PanelViewModel, onVerAlertas: () -> Unit, campana: @Composab
     val porEstado by vm.porEstado.collectAsState()
     val porCategoria by vm.porCategoria.collectAsState()
     val altas by vm.altasSinAtender.collectAsState()
+    val promedio by vm.promedioResolucion.collectAsState()
 
     Column(
         Modifier
@@ -65,6 +68,23 @@ fun PanelScreen(vm: PanelViewModel, onVerAlertas: () -> Unit, campana: @Composab
             Contador(abiertos, "Abiertos", EstadoAbierto, Modifier.weight(1f))
             Contador(enProceso, "En proceso", EstadoEnProceso, Modifier.weight(1f))
             Contador(resueltos, "Resueltos", EstadoResuelto, Modifier.weight(1f))
+        }
+        Spacer(Modifier.height(10.dp))
+        // La View solo muestra el valor que calcula el ViewModel
+        Tarjeta {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.Timer, null, tint = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("Tiempo promedio de resolución", style = MaterialTheme.typography.titleSmall)
+                    Text("De los tickets cerrados (cierre − creación)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Text(
+                    promedio?.let { duracion(it) } ?: "Sin datos",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
 
         Seccion("Tickets por estado")

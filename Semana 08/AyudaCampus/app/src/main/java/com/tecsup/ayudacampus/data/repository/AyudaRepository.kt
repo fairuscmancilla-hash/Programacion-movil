@@ -42,4 +42,6 @@ interface AyudaRepository {
     fun observarCantidadPorEstado(estado: EstadoTicket): Flow<Int>
     fun observarCantidadPorCategoria(): Flow<List<ConteoCategoria>>
     fun observarAltasSinAtender(limite: Long): Flow<Int>
+    /** Tiempo promedio de resolución (fechaCierre - fecha) en milisegundos; null si no hay cerrados */
+    fun observarPromedioResolucion(): Flow<Long?>
 }

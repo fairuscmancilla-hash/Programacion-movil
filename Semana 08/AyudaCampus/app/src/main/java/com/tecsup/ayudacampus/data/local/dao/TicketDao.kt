@@ -65,4 +65,8 @@ interface TicketDao {
 
     @Query("SELECT COUNT(*) FROM tickets WHERE prioridad = 'ALTA' AND estado = 'ABIERTO' AND fecha < :limite")
     fun contarAltasSinAtender(limite: Long): Flow<Int>
+
+    /** Promedio de (fechaCierre - fecha) en milisegundos; null si aún no hay tickets cerrados */
+    @Query("SELECT AVG(fechaCierre - fecha) FROM tickets WHERE estado = 'CERRADO' AND fechaCierre IS NOT NULL")
+    fun promedioResolucion(): Flow<Double?>
 }

@@ -55,4 +55,8 @@ class PanelViewModel(private val repo: AyudaRepository) : ViewModel() {
     val altasSinAtender: StateFlow<Int> = limite
         .flatMapLatest { repo.observarAltasSinAtender(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    /** Tiempo promedio de resolución en milisegundos (null = aún no hay tickets cerrados) */
+    val promedioResolucion: StateFlow<Long?> = repo.observarPromedioResolucion()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 }
