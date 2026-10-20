@@ -28,7 +28,13 @@ import androidx.compose.ui.unit.dp
 import com.tecsup.ayudacampus.data.local.entity.estadoEnum
 import com.tecsup.ayudacampus.data.local.entity.prioridadEnum
 import com.tecsup.ayudacampus.data.local.relation.TicketConDetalle
+import com.tecsup.ayudacampus.model.EstadoSla
+import com.tecsup.ayudacampus.ui.theme.EstadoAbierto
+import com.tecsup.ayudacampus.ui.theme.EstadoResuelto
+import com.tecsup.ayudacampus.ui.theme.PrioridadAlta
 import com.tecsup.ayudacampus.ui.theme.color
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Timer
 
 @Composable
 fun IconoCategoria(icono: String?, modifier: Modifier = Modifier) {
@@ -51,7 +57,8 @@ fun TicketCard(
     detalle: TicketConDetalle,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    mostrarCliente: Boolean = false
+    mostrarCliente: Boolean = false,
+    sla: EstadoSla? = null
 ) {
     val t = detalle.ticket
     val colores = MaterialTheme.colorScheme
@@ -97,8 +104,27 @@ fun TicketCard(
                             color = colores.onSurfaceVariant
                         )
                     }
+                    sla?.let {
+                        Spacer(Modifier.height(6.dp))
+                        SlaChip(it)
+                    }
                 }
             }
         }
+    }
+}
+
+/** Verde: a tiempo · Ámbar: queda menos del 25 % · Rojo: vencido */
+@Composable
+fun SlaChip(sla: EstadoSla, modifier: Modifier = Modifier) {
+    val (texto, color) = when {
+        sla.vencido -> "SLA vencido hace ${duracion(-sla.restanteMs)}" to PrioridadAlta
+        sla.porVencer -> "SLA: quedan ${duracion(sla.restanteMs)}" to EstadoAbierto
+        else -> "SLA: quedan ${duracion(sla.restanteMs)}" to EstadoResuelto
+    }
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        Icon(Icons.Outlined.Timer, null, tint = color, modifier = Modifier.size(14.dp))
+        Spacer(Modifier.width(4.dp))
+        Text("$texto (${sla.limiteHoras} h)", style = MaterialTheme.typography.labelSmall, color = color)
     }
 }

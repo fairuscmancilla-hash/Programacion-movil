@@ -6,6 +6,7 @@ import com.tecsup.ayudacampus.data.local.entity.Usuario
 import com.tecsup.ayudacampus.data.local.entity.estadoEnum
 import com.tecsup.ayudacampus.data.local.relation.TicketConDetalle
 import com.tecsup.ayudacampus.data.repository.AyudaRepository
+import com.tecsup.ayudacampus.model.EstadoSla
 import com.tecsup.ayudacampus.model.EstadoTicket
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,6 +35,11 @@ class MisTicketsViewModel(repo: AyudaRepository, usuario: Usuario) : ViewModel()
                 (estado == null || d.ticket.estadoEnum == estado) && coincide(d, texto)
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** ticketId -> tiempo restante del SLA; se recalcula cada minuto */
+    val sla: StateFlow<Map<Int, EstadoSla>> =
+        combine(todos, CalculoSla.reloj()) { lista, ahora -> CalculoSla.mapa(lista, ahora) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
     val resumen: StateFlow<ResumenTickets> = todos.map { lista ->
         ResumenTickets(

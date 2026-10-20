@@ -45,6 +45,7 @@ fun MisTicketsScreen(
     campana: @Composable () -> Unit = {}
 ) {
     val tickets by vm.tickets.collectAsState()
+    val sla by vm.sla.collectAsState()
     val filtro by vm.filtro.collectAsState()
     val busqueda by vm.busqueda.collectAsState()
     val resumen by vm.resumen.collectAsState()
@@ -92,7 +93,7 @@ fun MisTicketsScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(tickets, key = { it.ticket.id }) { d ->
-                        TicketCard(d, onClick = { onAbrir(d.ticket.id) })
+                        TicketCard(d, onClick = { onAbrir(d.ticket.id) }, sla = sla[d.ticket.id])
                     }
                 }
             }

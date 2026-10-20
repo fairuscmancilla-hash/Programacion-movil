@@ -29,6 +29,7 @@ import com.tecsup.ayudacampus.viewmodel.BandejaViewModel
 @Composable
 fun BandejaScreen(vm: BandejaViewModel, onAtras: () -> Unit, onAtender: (Int) -> Unit) {
     val tickets by vm.tickets.collectAsState()
+    val sla by vm.sla.collectAsState()
     val filtro by vm.filtro.collectAsState()
 
     Column(Modifier.fillMaxSize()) {
@@ -51,7 +52,7 @@ fun BandejaScreen(vm: BandejaViewModel, onAtras: () -> Unit, onAtender: (Int) ->
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(tickets, key = { it.ticket.id }) { d ->
-                    TicketCard(d, onClick = { onAtender(d.ticket.id) }, mostrarCliente = true)
+                    TicketCard(d, onClick = { onAtender(d.ticket.id) }, mostrarCliente = true, sla = sla[d.ticket.id])
                 }
             }
         }
