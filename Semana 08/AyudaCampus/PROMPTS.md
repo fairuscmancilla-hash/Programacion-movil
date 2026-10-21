@@ -2,7 +2,7 @@
 
 Fase 2 de AyudaCampus (rama `mejora-ia-semana08`).
 
-> **IA utilizada:** Claude (Claude Code), en lugar de Gemini en Android Studio.
+> **IA utilizada:**  Gemini en Android Studio.
 > Los prompts de abajo son los que se usaron para cada mejora, adaptados del ejemplo del laboratorio.
 
 ## Prompt 1 — Tiempo promedio de resolución
