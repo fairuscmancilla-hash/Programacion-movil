@@ -6,6 +6,7 @@ import com.tecsup.catalogo.data.repository.ItemRepository
 import com.tecsup.catalogo.domain.model.Item
 import com.tecsup.catalogo.notification.Notificador
 import com.tecsup.catalogo.ui.UiState
+import com.tecsup.catalogo.ui.mensajeDeError
 class ListaViewModel(private val repo: ItemRepository, private val notificador: Notificador) : ViewModel() {
  private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
  val estado = _estado.asStateFlow()
@@ -25,7 +26,7 @@ class ListaViewModel(private val repo: ItemRepository, private val notificador: 
    terminado = true
    val datos = repo.items.first()
    resultado.fold({ n -> _estado.value = UiState.Exito(datos); _aviso.value = null; notificador.mostrar("Datos actualizados", "Se guardaron $n elementos") }, { e ->
-    if(datos.isEmpty()) _estado.value = UiState.Error(when(e) { is java.io.IOException -> "No hay conexión a internet"; is retrofit2.HttpException -> "Error del servidor: ${e.code()}"; else -> "No se pudieron actualizar los productos" })
+    if(datos.isEmpty()) _estado.value = UiState.Error(mensajeDeError(e))
     else { _estado.value = UiState.Exito(datos); _aviso.value = when(e) { is java.io.IOException -> "Sin conexión: mostrando datos guardados"; is retrofit2.HttpException -> "El servidor no pudo actualizar los datos (HTTP ${e.code()}). Mostrando datos guardados."; else -> "No se pudo actualizar. Mostrando datos guardados." } }
    })
   }
