@@ -1,0 +1,62 @@
+{
+  "PA-07": {
+    "resultado": "APROBADO",
+    "detalle": "Oppo A57 marcado, proceso cerrado y reabierto: continúa en Favoritos."
+  },
+  "PA-10": {
+    "resultado": "APROBADO",
+    "detalle": "Sincronización real completada; Oppo A57 continúa en Favoritos y el total sigue en 1."
+  },
+  "PA-08": {
+    "resultado": "APROBADO",
+    "detalle": "Modo avión con caché: catálogo visible y aviso Sin conexión; no se borran productos."
+  },
+  "PA-09": {
+    "resultado": "APROBADO",
+    "detalle": "Modo avión sin caché, con sesión vigente: Error y Reintentar. Reintentar vuelve a manejar el fallo sin caída."
+  },
+  "PA-11": {
+    "resultado": "APROBADO",
+    "detalle": "Limpiar deja lista vacía y totales 0/0; después de recuperar internet, sincronizar recupera 16 productos y 0 favoritos."
+  },
+  "PA-13": {
+    "resultado": "APROBADO",
+    "detalle": "Giro real a horizontal: filtro Oppo y sesión Admin conservados, sin nuevo estado Cargando; ViewModel retenido por Activity y AppContainer por Application."
+  },
+  "PA-05": {
+    "resultado": "APROBADO",
+    "detalle": "Carga y catálogo reales; sincronización de 16 elementos y notificación con canal/permiso. La cola inicial se prueba adicionalmente en instrumentación."
+  },
+  "R09-TOQUE": {
+    "resultado": "APROBADO",
+    "detalle": "Desde la pantalla de inicio de Android, tocar Se guardaron 16 elementos abre NEXIO con la sesión vigente."
+  },
+  "PA-06": {
+    "resultado": "APROBADO",
+    "detalle": "Detalle real del iPhone 13 Pro: segundo endpoint en el repositorio, precio en soles y descripción en español visibles."
+  },
+  "PA-02": {
+    "resultado": "APROBADO",
+    "detalle": "Ingreso real de admin@nexio.com realizado por la estudiante; catálogo y acceso Admin visibles."
+  },
+  "PA-03": {
+    "resultado": "APROBADO",
+    "detalle": "Una clave ficticia incorrecta fue rechazada por Firebase; mensaje Correo o contraseña incorrectos y sin acceso al catálogo."
+  },
+  "PA-04": {
+    "resultado": "APROBADO",
+    "detalle": "Campos vacíos muestran Completa correo y contraseña; el retorno temprano del ViewModel evita llamar al repositorio."
+  },
+  "PA-14": {
+    "resultado": "APROBADO",
+    "detalle": "La estudiante denegó el permiso: POST_NOTIFICATIONS granted=false y el catálogo de 16 productos siguió funcionando. Posteriormente se habilitó para probar la notificación."
+  },
+  "PA-12": {
+    "resultado": "APROBADO",
+    "detalle": "Cerrar sesión y cerrar/reabrir el proceso muestra directamente el formulario de login; no se restaura el catálogo sin credenciales."
+  },
+  "PA-01": {
+    "resultado": "APROBADO",
+    "detalle": "Ingreso real de usuario@nexio.com realizado por la estudiante: catálogo visible y sin opción Admin en la barra inferior."
+  }
+}
