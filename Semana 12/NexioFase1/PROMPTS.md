@@ -1,54 +1,59 @@
-# PROMPTS.md · Uso de IA
+Actúa como desarrollador Android senior. Tengo una app en Kotlin con Jetpack Compose + Material 3,
+arquitectura MVVM, Retrofit (DummyJSON, categoría smartphones), Room y Firebase Auth + Firestore.
+Paquete: com.tecsup.catalogo. Es la Fase 2 (con IA) del Laboratorio 11-12 y debo cumplir la rúbrica:
+requisito R12, mejoras de errores e interfaz, mínimo 3 commits y PROMPTS.md.
 
-Registro de cada consulta a la IA durante el laboratorio 11-12 (NEXIO).
-Herramienta usada en todas las consultas: **Claude Code (Claude Opus 5.5)**, en la app de escritorio de Claude.
+Contexto del código actual:
+- ui/UiState.kt: sealed interface UiState<out T> { Cargando; Exito(datos); Error(mensaje) }
+- data/repository/ItemRepository.kt (interface): items: Flow<List<Item>>, favoritos: Flow<List<Item>>,
+  refrescar(): Result<Int>, obtenerDetalle(id): Result<Item>, alternarFavorito(id),
+  cantidadGuardada(), cantidadFavoritos(), limpiarCache()
+- notification/Notificador.kt (interface): mostrar(titulo, texto)
+- ui/lista/ListaViewModel.kt: recibe ItemRepository y Notificador; expone estado: StateFlow<UiState<List<Item>>>
+  y aviso: StateFlow<String?>. Al iniciar observa repo.items y llama refrescar(). Si el refresco sale bien
+  muestra la lista y notifica "Se guardaron N elementos"; si falla sin datos guardados muestra Error;
+  si falla con datos guardados muestra la lista y el aviso "Sin conexión: mostrando datos guardados".
+- ui/detalle/DetalleViewModel.kt: ante cualquier error muestra "No se pudo cargar el detalle. Revisa tu conexión."
+- ui/lista/ListaScreen.kt: el composable Catalogo(...) se reutiliza en Favoritos y, si la lista está vacía,
+  siempre muestra "Aún no hay productos aquí."
 
-> Completa la parte **"Qué aprendimos"** de cada consulta con tus propias palabras antes de entregar.
+Haz estos cambios, respetando MVVM (el ViewModel no recibe Context y depende solo de interfaces):
 
-## Consulta 1
-**Fecha:** 08/11/2026
-**Herramienta:** Claude Code (Claude Opus 5.5)
-**Prompt:** «Puedes revisar mi proyecto, solo la fase sin IA. La integrante soy sola yo, pero quiero que sigas tal cual indica [la guía GLAB-S11].»
-**Qué respondió (resumen):** Comparó el proyecto con la guía requisito por requisito. R01 a R11 estaban cumplidos. Faltaban los commits por hito y había diferencias con la guía: Retrofit usaba Gson en vez de kotlinx-serialization, Room estaba en 2.7.0 en vez de 2.8.5, la interface `Notificador` tenía un método extra y había documentos sueltos.
-**Qué usamos / qué cambiamos y por qué:** Usé la revisión como lista de pendientes. No cambié nada en esta consulta; decidí qué corregir en la siguiente.
-**Qué aprendimos:** _(escribe aquí con tus palabras: por ejemplo, qué requisitos de la rúbrica revisa el docente y por qué el Repository debe ser una interface)_
+1. Mensajes de error:
+   - Crea ui/MensajesError.kt con una función mensajeDeError(e: Throwable): String que devuelva:
+     IOException -> "No hay conexión a internet"; HttpException 404 -> "No se encontró el elemento solicitado";
+     otro HttpException -> "El servidor respondió con error {código}"; cualquier otro -> "Ocurrió un error inesperado".
+   - Úsala en ListaViewModel (estado Error sin datos guardados) y en DetalleViewModel.
 
-## Consulta 2
-**Fecha:** 08/11/2026
-**Herramienta:** Claude Code (Claude Opus 5.5)
-**Prompt:** «Actualiza el README. Las capturas no se visualizan, puedes revisar eso. Haz el punto 2 y 3 [dependencias y Notificador], y el punto 4 júntalo en el README. El rediseño lo puedes eliminar.»
-**Qué respondió (resumen):** Cambió Retrofit a `converter-kotlinx-serialization` con OkHttp y `logging-interceptor`, y subió Room a 2.8.5. Dejó `Notificador` solo con `mostrar(titulo, texto)`, como en el contrato, y movió la respuesta al permiso a `MainActivity`. Reescribió el README con todo lo que pide la guía y una sección de extras, y quitó los documentos sueltos. Arregló una prueba instrumentada que fallaba a veces por tiempos de Android.
-**Qué usamos / qué cambiamos y por qué:** Usé todos los cambios porque ponen el proyecto igual a la guía. Comprobé que compila, que las 15 pruebas instrumentadas pasan y que la lista y el detalle cargan en el emulador. Las capturas no se veían porque el visor que usaba no carga imágenes locales; en GitHub sí se ven.
-**Qué aprendimos:** _(escribe aquí: por ejemplo, para qué sirve `ignoreUnknownKeys` en kotlinx-serialization y por qué el ViewModel solo debe conocer la interface Notificador)_
+2. Pruebas unitarias del ViewModel de la lista (R12), en app/src/test/java/com/tecsup/catalogo/ui/lista/:
+   - Agrega a app/build.gradle.kts: testImplementation("junit:junit:4.13.2") y
+     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0").
+   - FakeItemRepository: implementa ItemRepository con un MutableStateFlow en memoria (como si fuera Room)
+     y una propiedad respuestaApi: Result<List<Item>> para simular la API. Cuenta cuántas veces se refrescó
+     y guarda los ids de favoritos alternados.
+   - FakeNotificador: implementa Notificador y guarda los mensajes en una lista en vez de mostrarlos.
+   - ListaViewModelTest con StandardTestDispatcher y Dispatchers.setMain/resetMain, con estas pruebas:
+     a) al abrir muestra Cargando hasta que termina el primer refresco;
+     b) con internet muestra la lista y notifica "Se guardaron 3 elementos";
+     c) sin internet y sin datos guardados muestra Error "No hay conexión a internet" y no notifica;
+     d) sin internet con datos guardados muestra esos datos y el aviso de sin conexión;
+     e) error HTTP 500 sin datos muestra "El servidor respondió con error 500";
+     f) Reintentar después de un error carga la lista;
+     g) alternarFavorito actualiza la lista desde el repositorio.
 
-## Consulta 3
-**Fecha:** 08/11/2026
-**Herramienta:** Claude Code (Claude Opus 5.5)
-**Prompt:** «Me puedes dar los comandos para hacer los commits.» / «¿Los commits que me das son de acuerdo a la rúbrica del PDF?»
-**Qué respondió (resumen):** Preparó 17 commits que siguen la tabla de hitos H1–H16 de la guía, más uno de pruebas, con el formato `tipo: qué se hizo`. Explicó qué parte del criterio "Git y GitHub" cumplen y en qué se diferencia del repositorio que pide la guía.
-**Qué usamos / qué cambiamos y por qué:** Ejecuté yo misma los comandos para que los commits salieran desde mi cuenta.
-**Qué aprendimos:** _(escribe aquí: por ejemplo, qué significa "un commit = una idea" y cómo revisar los commits con `git log` o `git shortlog -sn`)_
+3. Mejora de interfaz:
+   - Agrega a Catalogo un parámetro mensajeVacio con valor por defecto "Aún no hay productos aquí.",
+     centrado y con el color del tema.
+   - En FavoritosScreen pásale: "Aún no tienes favoritos.\nToca el corazón ♡ de un producto para guardarlo aquí."
 
-## Consulta 4
-**Fecha:** 08/11/2026
-**Herramienta:** Claude Code (Claude Opus 5.5)
-**Prompt:** «Esta es mi dirección [repositorio Programacion-movil], ahí tengo que subir mi proyecto, en la semana 12. Primero quiero crear una nueva rama semana12. El proyecto debe quedar en una sola carpeta, como TecsupStore.»
-**Qué respondió (resumen):** Dio los comandos para clonar, crear la rama `semana12`, copiar el proyecto sin `google-services.json` ni `local.properties`, y moverlo a `Semana 12/NexioFase1` con `git mv` para conservar el historial. También explicó por qué Android Studio mostraba otra rama y que hay que llevar `google-services.json` aparte para iniciar sesión en otra computadora.
-**Qué usamos / qué cambiamos y por qué:** Ejecuté los comandos y subí la rama `semana12`.
-**Qué aprendimos:** _(escribe aquí: por ejemplo, por qué `google-services.json` no se sube a GitHub y la diferencia entre `git mv` y copiar archivos)_
+4. Documentación:
+   - Crea PROMPTS.md con la plantilla de la guía (Fecha, Herramienta, Prompt, Qué respondió,
+     Qué usamos / qué cambiamos y por qué, Qué aprendimos).
+   - Agrega al README una sección "Fase 2" con una tabla de las mejoras, cómo correr las pruebas
+     (gradlew testDebugUnitTest) y una captura de Favoritos vacío.
 
-## Consulta 5
-**Fecha:** 08/11/2026
-**Herramienta:** Claude Code (Claude Opus 5.5)
-**Prompt:** «Ahora puedes ejecutar la fase con IA, pero hazlo de acuerdo a la rúbrica del laboratorio.»
-**Qué respondió (resumen):** Hizo la Fase 2 según la guía:
-1. **R12:** 7 pruebas unitarias de `ListaViewModel` con un `FakeItemRepository` y un `FakeNotificador`. Usan `kotlinx-coroutines-test` (`StandardTestDispatcher` y `Dispatchers.setMain`).
-2. **Errores:** creó la función `mensajeDeError` para la lista y el detalle. El detalle ya no dice "Revisa tu conexión" cuando el error es del servidor.
-3. **Interfaz:** Favoritos vacío ahora explica cómo agregar un favorito.
+5. Comprueba que el proyecto compile, que pasen las pruebas unitarias y las instrumentadas,
+   y que lint no tenga errores.
 
-Comprobó que compila, que las 7 pruebas unitarias y las 15 instrumentadas pasan, y revisó la pantalla de Favoritos en el emulador.
-**Qué usamos / qué cambiamos y por qué:** Usé las tres mejoras y las subí en la rama `mejora-ia-semana12`. Elegí ese nombre porque mi repositorio ya tenía una rama `mejora-ia` de otra semana.
-**Qué aprendimos:** _(escribe aquí: por ejemplo, para qué sirve un repositorio falso en una prueba, por qué hay que cambiar `Dispatchers.Main` y qué comprueba cada prueba)_
-
-## Reflexión general
-_(escribe aquí en 4 o 5 líneas: en qué te ayudó la IA, qué tuviste que revisar o corregir tú, qué riesgo tiene usar código de la IA sin entenderlo y qué harías distinto la próxima vez)_
+6. Organiza los cambios en commits pequeños con formato "tipo: qué se hizo" en la rama mejora-ia-semana12:
+   fix (errores), test (pruebas), feat (interfaz) y docs (PROMPTS.md y README).
