@@ -1,4 +1,4 @@
-# NEXIO · Laboratorio 11-12 · Fase 1
+# NEXIO · Laboratorio 11-12
 
 App Android de consulta de celulares hecha con Kotlin, Jetpack Compose + Material 3, MVVM, Retrofit, Room y Firebase Authentication + Firestore.
 
@@ -13,7 +13,7 @@ App Android de consulta de celulares hecha con Kotlin, Jetpack Compose + Materia
 | Lista | `GET /products/category/smartphones`             |
 | Detalle | `GET /products/{id}`                             |
 | Paquete / applicationId | `com.tecsup.catalogo`                            |
-| Fase | Fase 1, rama `main`                              |
+| Fases | Fase 1 (sin IA): rama `semana12` · Fase 2 (con IA): rama `mejora-ia-semana12` |
 
 ## Cómo compilar
 
@@ -150,12 +150,29 @@ No cambian los contratos ni las reglas MVVM.
 
 - Compila desde cero (`clean assembleDebug assembleDebugAndroidTest lintDebug`): **BUILD SUCCESSFUL**.
 - Android Lint: **0 errores**, 14 advertencias (versiones más nuevas de librerías y targetSdk).
+- Pruebas unitarias de `ListaViewModel` (Fase 2, R12): **7 de 7 aprobadas**.
 - Pruebas instrumentadas: **15 de 15 aprobadas** en el emulador.
 - Pruebas de aceptación PA-01 a PA-14 de la guía: aprobadas. Detalle y capturas de cada caso en [docs/PRUEBAS_ACEPTACION.md](docs/PRUEBAS_ACEPTACION.md).
+
+Para correr las pruebas unitarias (no necesitan emulador): `gradlew.bat testDebugUnitTest`.
 
 Para correr las pruebas instrumentadas en un emulador: `gradlew.bat connectedDebugAndroidTest`.
 
 Si el emulador falla, ver [docs/EMULADOR.md](docs/EMULADOR.md). Preguntas de la sustentación: [docs/SUSTENTACION.md](docs/SUSTENTACION.md).
+
+## Fase 2: mejora con IA (rama `mejora-ia-semana12`)
+
+Herramienta: Claude Code (Claude Opus 5.5). Cada consulta está registrada en [PROMPTS.md](PROMPTS.md).
+
+| Mejora | Qué cambió | Archivos |
+|---|---|---|
+| **R12: pruebas unitarias** | 7 pruebas de `ListaViewModel` con un repositorio falso y un notificador falso: Cargando al abrir, lista con notificación, error sin internet, datos guardados con aviso, error HTTP, Reintentar y favoritos. | `app/src/test/.../ui/lista/` |
+| **Mensajes de error** | Una sola función, `mensajeDeError`, para la lista y el detalle. El detalle ya no dice "Revisa tu conexión" cuando el error es del servidor. Un 404 muestra "No se encontró el elemento solicitado". | `ui/MensajesError.kt`, `ListaViewModel.kt`, `DetalleViewModel.kt` |
+| **Interfaz** | Favoritos vacío explica qué hacer: «Aún no tienes favoritos. Toca el corazón ♡ de un producto para guardarlo aquí.» | `ListaScreen.kt`, `FavoritosScreen.kt` |
+
+Las pruebas usan `kotlinx-coroutines-test` (`StandardTestDispatcher` + `Dispatchers.setMain`), porque `viewModelScope` corre en `Dispatchers.Main` y en una prueba de JVM no existe.
+
+<p align="center"><b>Favoritos vacío (Fase 2)</b><br><img src="docs/capturas/16-favoritos-vacio.png" width="220" alt="Favoritos vacío"></p>
 
 ## Reparto de tareas
 
@@ -170,3 +187,9 @@ Trabajo individual: la única integrante hizo todas las tareas.
 | Panel Admin y notificación local | _Yajaira Cerron_ |
 | Pruebas, capturas y README | _Yajaira Cerron_ |
 
+## Git
+
+- Rama `semana12`: Fase 1 (sin IA), 17 commits por hito (H1–H16 y pruebas).
+- Rama `mejora-ia-semana12`: Fase 2 (con IA), con Pull Request hacia `semana12`.
+- Mensajes de commit con el formato `tipo: qué se hizo` (`feat`, `fix`, `refactor`, `test`, `docs`, `chore`).
+- No se suben `build/`, `.idea/`, `local.properties` ni `google-services.json` (ver [.gitignore](.gitignore)).
