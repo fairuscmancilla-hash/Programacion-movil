@@ -29,7 +29,7 @@ fun precio(valor: Double) = com.tecsup.catalogo.domain.model.Moneda.formatearSol
   when(val s=estado) { UiState.Cargando -> Cargando();is UiState.Error -> ErrorView(s.mensaje,vm::refrescar);is UiState.Exito -> Catalogo(s.datos,abrir,vm::alternarFavorito,true,vm::refrescar,categorias) }
  }
 }
-@Composable fun Catalogo(items: List<Item>, abrir: (Int)->Unit, favorito: (Int)->Unit, banner: Boolean=false, actualizar: ()->Unit={}, categorias: Boolean=false) {
+@Composable fun Catalogo(items: List<Item>, abrir: (Int)->Unit, favorito: (Int)->Unit, banner: Boolean=false, actualizar: ()->Unit={}, categorias: Boolean=false, mensajeVacio: String="Aún no hay productos aquí.") {
  var buscar by rememberSaveable {mutableStateOf("")};var marca by rememberSaveable {mutableStateOf("Todos")}
  val filtrados=items.filter { (it.titulo.contains(buscar,true)||it.marca.contains(buscar,true)) && (marca=="Todos" || it.marca==marca) }
  LazyVerticalGrid(columns=GridCells.Fixed(2),contentPadding=PaddingValues(start=18.dp,end=18.dp,bottom=22.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
@@ -62,7 +62,7 @@ fun precio(valor: Double) = com.tecsup.catalogo.domain.model.Moneda.formatearSol
    }
   }
   item(span={GridItemSpan(maxLineSpan)}) { Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {Text(if(!banner) "Tus favoritos" else if(categorias) "Explora por marca" else "Descubre tu próximo celular",fontWeight=FontWeight.Bold,fontSize=17.sp,color=Berenjena);if(banner) TextButton(onClick=actualizar,contentPadding=PaddingValues(0.dp)){Text("Actualizar ↻",fontSize=11.sp)} } }
-  if(filtrados.isEmpty()) item(span={GridItemSpan(maxLineSpan)}) {Text(if(items.isEmpty()) "Aún no hay productos aquí." else "No hay resultados para tu búsqueda.",modifier=Modifier.padding(24.dp))}
+  if(filtrados.isEmpty()) item(span={GridItemSpan(maxLineSpan)}) {Text(if(items.isEmpty()) mensajeVacio else "No hay resultados para tu búsqueda.",modifier=Modifier.fillMaxWidth().padding(24.dp),textAlign=androidx.compose.ui.text.style.TextAlign.Center,color=Morado)}
   items(filtrados,key={it.id}) {p->
    Card(onClick={abrir(p.id)},shape=RoundedCornerShape(20.dp),colors=CardDefaults.cardColors(containerColor=Superficie)) {
     Column(Modifier.padding(12.dp)) {
