@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -16,7 +18,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -24,13 +28,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.cerron.centrotareas.model.PrimosUi
+import com.cerron.centrotareas.ui.theme.VerdeFondo
+import com.cerron.centrotareas.ui.theme.VerdeTexto
 import com.cerron.centrotareas.viewmodel.TareasViewModel
+
+// Ajustado al emulador Pixel_5: con 500000 tardaba menos de 1 s
+private const val N_POR_DEFECTO = "3000000"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,8 +105,66 @@ private fun TarjetaProgreso(vm: TareasViewModel) {
 
 @Composable
 private fun TarjetaPrimos(vm: TareasViewModel) {
+    val primos by vm.primos.collectAsState()
+    var texto by rememberSaveable { mutableStateOf(N_POR_DEFECTO) }
+    var contado by rememberSaveable { mutableIntStateOf(0) }
+    val calculando = primos is PrimosUi.Calculando
+
     Tarjeta("Contar números primos") {
-        // TODO Paso 5: campo numérico, botones Contar/Cancelar y resultado
+        OutlinedTextField(
+            value = texto,
+            onValueChange = { texto = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Hasta el número") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = {
+                    val numero = texto.toIntOrNull()
+                    if (numero != null && numero >= 2) {
+                        contado = numero
+                        vm.contar(numero)
+                    }
+                },
+                enabled = !calculando
+            ) {
+                Text("Contar")
+            }
+            OutlinedButton(onClick = { vm.cancelarPrimos() }, enabled = calculando) {
+                Text("Cancelar")
+            }
+        }
+        when (val estado = primos) {
+            PrimosUi.Inicial -> Unit
+            PrimosUi.Calculando -> Text("Calculando...")
+            PrimosUi.Cancelado -> Text("Cancelado")
+            is PrimosUi.Listo -> RecuadroExito {
+                Text(
+                    text = "Primos hasta $contado: ${estado.cantidad}",
+                    color = VerdeTexto,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                Text("Tiempo: ${estado.milisegundos} ms", color = VerdeTexto)
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecuadroExito(contenido: @Composable ColumnScope.() -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = VerdeFondo,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            content = contenido
+        )
     }
 }
 
