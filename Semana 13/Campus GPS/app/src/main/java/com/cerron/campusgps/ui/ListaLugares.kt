@@ -14,7 +14,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.cerron.campusgps.model.LugarConDistancia
 import com.cerron.campusgps.ui.theme.GlacierSeleccion
@@ -44,7 +47,10 @@ fun ListaLugares(lugares: List<LugarConDistancia>, seleccionado: Int?, onClick: 
      Spacer(Modifier.width(12.dp))
      Column(Modifier.weight(1f)) {
       Text(item.lugar.nombre, color = Color.Black, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-      Text(item.lugar.categoria, color = Color(0xFF6B7280), style = MaterialTheme.typography.bodySmall)
+      Text(buildAnnotatedString {
+       append(item.lugar.categoria)
+       if (item.dentroDelRadio) withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)) { append(" · Dentro del radio") }
+      }, color = Color(0xFF6B7280), style = MaterialTheme.typography.bodySmall)
      }
      Text(item.metros?.let(::formatearDistancia) ?: "Sin calcular", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
     }

@@ -2,7 +2,7 @@ package com.cerron.campusgps.model
 
 data class Posicion(val latitud: Double, val longitud: Double)
 data class Lugar(val id: Int, val nombre: String, val categoria: String, val latitud: Double, val longitud: Double)
-data class LugarConDistancia(val lugar: Lugar, val metros: Float?)
+data class LugarConDistancia(val lugar: Lugar, val metros: Float?, val dentroDelRadio: Boolean = false)
 enum class TipoError { SIN_PERMISO, GPS_APAGADO, SIN_PLAY_SERVICES, OTRO }
 sealed interface UbicacionUi {
  data object Inicial : UbicacionUi

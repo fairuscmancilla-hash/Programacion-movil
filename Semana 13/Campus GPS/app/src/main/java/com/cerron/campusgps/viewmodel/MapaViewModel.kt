@@ -6,6 +6,7 @@ import com.cerron.campusgps.data.*
 import com.cerron.campusgps.model.*
 import com.cerron.campusgps.util.distanciaMetros
 import com.cerron.campusgps.util.filtrarPorCategoria
+import com.cerron.campusgps.util.marcarDentroDelRadio
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 class MapaViewModel(private val ubicacionRepo: UbicacionRepository, private val lugaresRepo: LugaresRepository) : ViewModel() {
@@ -15,7 +16,10 @@ class MapaViewModel(private val ubicacionRepo: UbicacionRepository, private val 
  val categorias: List<String> = lugaresRepo.obtenerLugares().map { it.categoria }.distinct()
  private val _categoria = MutableStateFlow<String?>(null)
  val categoria = _categoria.asStateFlow()
- val lugares: StateFlow<List<LugarConDistancia>> = combine(_lugares, _categoria) { lista, categoria -> filtrarPorCategoria(lista, categoria) }
+ val radiosDisponibles = listOf(100, 200, 500)
+ private val _radio = MutableStateFlow(200)
+ val radio = _radio.asStateFlow()
+ val lugares: StateFlow<List<LugarConDistancia>> = combine(_lugares, _categoria, _radio) { lista, categoria, radio -> marcarDentroDelRadio(filtrarPorCategoria(lista, categoria), radio) }
   .stateIn(viewModelScope, SharingStarted.Eagerly, _lugares.value)
  private val _seleccionado = MutableStateFlow<Int?>(null)
  val seleccionado = _seleccionado.asStateFlow()
@@ -57,5 +61,6 @@ class MapaViewModel(private val ubicacionRepo: UbicacionRepository, private val 
   val sigueVisible = filtrarPorCategoria(_lugares.value, nueva).any { it.lugar.id == _seleccionado.value }
   if (!sigueVisible) _seleccionado.value = null
  }
+ fun seleccionarRadio(metros: Int) { _radio.value = metros }
  fun permisoDenegado() { _estado.value = UbicacionUi.Error("Sin permiso de ubicación no puedo mostrar dónde estás", TipoError.SIN_PERMISO) }
 }

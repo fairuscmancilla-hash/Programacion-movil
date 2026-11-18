@@ -3,11 +3,13 @@ package com.cerron.campusgps.ui
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.cerron.campusgps.model.*
+import com.cerron.campusgps.ui.theme.GlacierCampus
+import com.cerron.campusgps.ui.theme.NavyCampus
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.compose.*
 @Composable
-fun MapaUbicacion(estado: UbicacionUi, lugares: List<LugarConDistancia>, seleccionado: Int?, solicitudCamara: Int, modifier: Modifier = Modifier) {
+fun MapaUbicacion(estado: UbicacionUi, lugares: List<LugarConDistancia>, seleccionado: Int?, solicitudCamara: Int, radio: Int, modifier: Modifier = Modifier) {
  val camara = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(LatLng(-12.0464, -77.0428), 12f) }
  var cargado by remember { mutableStateOf(false) }
  LaunchedEffect(estado, cargado) {
@@ -25,6 +27,7 @@ fun MapaUbicacion(estado: UbicacionUi, lugares: List<LugarConDistancia>, selecci
    val propio = rememberUpdatedMarkerState(LatLng(estado.posicion.latitud, estado.posicion.longitud))
    LaunchedEffect(estado, cargado) { if (cargado && seleccionado == null) propio.showInfoWindow() }
    Marker(state = propio, title = "Estás aquí")
+   Circle(center = LatLng(estado.posicion.latitud, estado.posicion.longitud), radius = radio.toDouble(), strokeColor = NavyCampus, strokeWidth = 4f, fillColor = GlacierCampus.copy(alpha = 0.25f))
   }
   lugares.forEach { item -> key(item.lugar.id) {
    val lugar = item.lugar

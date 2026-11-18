@@ -40,6 +40,7 @@ fun PantallaMapa(vm: MapaViewModel) {
  val solicitudCamara by vm.solicitudCamara.collectAsState()
  val cercano by vm.masCercano.collectAsState()
  val categoria by vm.categoria.collectAsState()
+ val radio by vm.radio.collectAsState()
  val contexto = LocalContext.current
  val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { resultado ->
   if (resultado.values.any { it }) vm.buscar() else vm.permisoDenegado()
@@ -58,7 +59,7 @@ fun PantallaMapa(vm: MapaViewModel) {
   }
   val mapa: @Composable (Modifier) -> Unit = { modificador ->
    if (BuildConfig.MAPS_CONFIGURADO) {
-    MapaUbicacion(estado, lugares, seleccionado, solicitudCamara, modificador)
+    MapaUbicacion(estado, lugares, seleccionado, solicitudCamara, radio, modificador)
    } else {
     Box(modificador.background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
      Text("Configura la clave de Google Maps en local.properties", Modifier.padding(16.dp))
@@ -86,6 +87,7 @@ fun PantallaMapa(vm: MapaViewModel) {
      append("${lugar.nombre} (${metros?.let(::formatearDistancia) ?: "Sin calcular"})")
     }, Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium)
    }
+   SelectorRadio(vm.radiosDisponibles, radio, vm::seleccionarRadio)
    FiltroCategorias(vm.categorias, categoria, vm::seleccionarCategoria)
    ListaLugares(lugares, seleccionado, { vm.seleccionar(it) }, Modifier.fillMaxWidth().height(170.dp))
   }
