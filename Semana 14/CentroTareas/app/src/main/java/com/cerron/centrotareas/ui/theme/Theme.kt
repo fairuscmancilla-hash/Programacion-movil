@@ -3,15 +3,26 @@ package com.cerron.centrotareas.ui.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 
 private val EsquemaClaro = lightColorScheme(
-    primary = Azul,
-    onPrimary = Color.White,
-    primaryContainer = AzulClaro,
-    onPrimaryContainer = AzulOscuro,
-    background = FondoClaro,
-    surface = FondoClaro
+    primary = NaranjaBoton,
+    onPrimary = Blanco,
+    primaryContainer = NaranjaClaro,
+    onPrimaryContainer = Marino,
+    secondary = Marino,
+    onSecondary = Blanco,
+    secondaryContainer = AzulHielo,
+    onSecondaryContainer = Marino,
+    background = Crema,
+    onBackground = Marino,
+    surface = Blanco,
+    onSurface = Marino,
+    surfaceVariant = AzulHielo,
+    onSurfaceVariant = TextoSuave,
+    outline = BordeSuave,
+    error = RojoError,
+    errorContainer = RojoFondo,
+    onErrorContainer = RojoTexto
 )
 
 @Composable
