@@ -1,21 +1,36 @@
 package com.cerron.campusgps.ui
 
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.cerron.campusgps.model.*
 import com.cerron.campusgps.viewmodel.MapaViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
  val estado by vm.estado.collectAsState()
+ val contexto = LocalContext.current
+ val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { resultado ->
+  if (resultado.values.any { it }) vm.buscar() else vm.permisoDenegado()
+ }
+ fun alPulsar() {
+  if (listOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION).any { ContextCompat.checkSelfPermission(contexto, it) == PackageManager.PERMISSION_GRANTED }) vm.buscar()
+  else lanzador.launch(arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))
+ }
  Scaffold(topBar = { TopAppBar(title = { Text("CampusGPS", fontWeight = FontWeight.Bold) }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary, titleContentColor = MaterialTheme.colorScheme.onPrimary)) }) { padding ->
   Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-   Button(onClick = { vm.buscar() }, enabled = estado != UbicacionUi.Buscando, modifier = Modifier.padding(top = 12.dp)) {
+   Button(onClick = { alPulsar() }, enabled = estado != UbicacionUi.Buscando, modifier = Modifier.padding(top = 12.dp)) {
     if (estado == UbicacionUi.Buscando) { CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
     Text(if (estado == UbicacionUi.Buscando) "Buscando…" else "Obtener mi ubicación", fontWeight = FontWeight.Bold)
    }
