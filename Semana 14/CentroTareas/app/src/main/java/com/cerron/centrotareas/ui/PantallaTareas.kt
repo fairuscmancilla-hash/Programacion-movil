@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.cerron.centrotareas.model.CargaUi
 import com.cerron.centrotareas.model.PrimosUi
 import com.cerron.centrotareas.ui.theme.VerdeFondo
 import com.cerron.centrotareas.ui.theme.VerdeTexto
@@ -170,8 +172,30 @@ private fun RecuadroExito(contenido: @Composable ColumnScope.() -> Unit) {
 
 @Composable
 private fun TarjetaCargas(vm: TareasViewModel) {
+    val carga by vm.carga.collectAsState()
+    val cargando = carga is CargaUi.Cargando
+
     Tarjeta("Dos cargas") {
-        // TODO Pasos 6 y 7: botones, indicador, resultado, error e interruptor
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = { vm.cargarUnaPorUna() }, enabled = !cargando) {
+                Text("Una por una")
+            }
+            Button(onClick = { vm.cargarALaVez() }, enabled = !cargando) {
+                Text("A la vez")
+            }
+        }
+        when (val estado = carga) {
+            CargaUi.Inicial -> Unit
+            CargaUi.Cargando -> CircularProgressIndicator()
+            is CargaUi.Exito -> RecuadroExito {
+                Text("Modo: ${estado.modo}", color = VerdeTexto, fontWeight = FontWeight.Bold)
+                Text("Perfil: ${estado.perfil}", color = VerdeTexto)
+                Text("Pedidos: ${estado.pedidos}", color = VerdeTexto)
+                Text("Tiempo: ${estado.milisegundos} ms", color = VerdeTexto)
+            }
+            // TODO Paso 7: recuadro de error con Reintentar
+            is CargaUi.Error -> Unit
+        }
     }
 }
 
