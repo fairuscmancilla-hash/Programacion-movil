@@ -1,0 +1,24 @@
+package com.cerron.campusgps.ui
+
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import com.cerron.campusgps.model.*
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.*
+import com.google.maps.android.compose.*
+@Composable
+fun MapaUbicacion(estado: UbicacionUi, lugares: List<LugarConDistancia>, seleccionado: Int?, modifier: Modifier = Modifier) {
+ val camara = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(LatLng(-12.0464, -77.0428), 12f) }
+ var cargado by remember { mutableStateOf(false) }
+ LaunchedEffect(estado, cargado) {
+  if (cargado && estado is UbicacionUi.Lista) camara.animate(CameraUpdateFactory.newLatLngZoom(LatLng(estado.posicion.latitud, estado.posicion.longitud), 16f))
+ }
+ val ajustes = remember { MapUiSettings(zoomControlsEnabled = false, mapToolbarEnabled = false) }
+ GoogleMap(modifier = modifier, cameraPositionState = camara, uiSettings = ajustes, onMapLoaded = { cargado = true }) {
+  if (estado is UbicacionUi.Lista) {
+   val propio = rememberUpdatedMarkerState(LatLng(estado.posicion.latitud, estado.posicion.longitud))
+   LaunchedEffect(estado, cargado) { if (cargado) propio.showInfoWindow() }
+   Marker(state = propio, title = "Estás aquí")
+  }
+ }
+}
