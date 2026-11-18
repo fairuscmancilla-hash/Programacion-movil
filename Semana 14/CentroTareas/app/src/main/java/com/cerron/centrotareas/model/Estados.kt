@@ -9,6 +9,8 @@ sealed interface PrimosUi {
     data object Cancelado : PrimosUi
 }
 
+data class TiempoCarga(val modo: String, val milisegundos: Long)
+
 sealed interface CargaUi {
     data object Inicial : CargaUi
     data object Cargando : CargaUi

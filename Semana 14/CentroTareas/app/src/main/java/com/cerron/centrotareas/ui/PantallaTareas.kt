@@ -32,6 +32,7 @@ import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Dashboard
+import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Layers
@@ -85,6 +86,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cerron.centrotareas.model.CargaUi
 import com.cerron.centrotareas.model.PrimosUi
+import com.cerron.centrotareas.model.TiempoCarga
 import com.cerron.centrotareas.ui.theme.AzulHielo
 import com.cerron.centrotareas.ui.theme.Blanco
 import com.cerron.centrotareas.ui.theme.BordeSuave
@@ -547,6 +549,7 @@ private fun TarjetaPrimos(vm: TareasViewModel) {
 private fun TarjetaCargas(vm: TareasViewModel) {
     val carga by vm.carga.collectAsState()
     val simularError by vm.simularError.collectAsState()
+    val tiempos by vm.tiempos.collectAsState()
     val cargando = carga is CargaUi.Cargando
 
     Tarjeta(
@@ -636,6 +639,102 @@ private fun TarjetaCargas(vm: TareasViewModel) {
                 )
             }
         }
+        if (tiempos.isNotEmpty()) {
+            TablaTiempos(tiempos = tiempos, onLimpiar = { vm.limpiarTiempos() })
+        }
+    }
+}
+
+@Composable
+private fun TablaTiempos(tiempos: List<TiempoCarga>, onLimpiar: () -> Unit) {
+    val promedios = listOf("Una por una", "A la vez").associateWith { modo ->
+        tiempos.filter { it.modo == modo }.map { it.milisegundos }
+    }
+    val unaPorUna = promedios.getValue("Una por una")
+    val aLaVez = promedios.getValue("A la vez")
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = AzulHielo,
+        shape = RoundedCornerShape(14.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = "Tiempos acumulados",
+                modifier = Modifier.fillMaxWidth(),
+                color = Marino,
+                fontWeight = FontWeight.Bold
+            )
+            FilaTiempo("Modo", "Veces", "Último", "Promedio", encabezado = true)
+            promedios.forEach { (modo, valores) ->
+                FilaTiempo(
+                    modo = modo,
+                    veces = valores.size.toString(),
+                    ultimo = valores.lastOrNull()?.let { "$it ms" } ?: "-",
+                    promedio = if (valores.isEmpty()) "-" else "${valores.average().toLong()} ms"
+                )
+            }
+            if (unaPorUna.isNotEmpty() && aLaVez.isNotEmpty()) {
+                val ahorro = unaPorUna.average().toLong() - aLaVez.average().toLong()
+                Text(
+                    text = "A la vez ahorra $ahorro ms en promedio",
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Marino,
+                    fontWeight = FontWeight.Medium,
+                    style = EstiloNumeros
+                )
+            }
+            BotonBorde(
+                texto = "Limpiar",
+                icono = Icons.Rounded.DeleteOutline,
+                onClick = onLimpiar
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilaTiempo(
+    modo: String,
+    veces: String,
+    ultimo: String,
+    promedio: String,
+    encabezado: Boolean = false
+) {
+    val color = if (encabezado) TextoSuave else Marino
+    val peso = if (encabezado) FontWeight.Medium else FontWeight.Normal
+    val estilo = EstiloNumeros.copy(fontSize = 13.sp)
+
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(modo, Modifier.weight(1.5f), color, fontWeight = peso, style = estilo)
+        Text(
+            veces,
+            Modifier.weight(0.7f),
+            color,
+            fontWeight = peso,
+            textAlign = TextAlign.End,
+            style = estilo
+        )
+        Text(
+            ultimo,
+            Modifier.weight(1.1f),
+            color,
+            fontWeight = peso,
+            textAlign = TextAlign.End,
+            style = estilo
+        )
+        Text(
+            promedio,
+            Modifier.weight(1.2f),
+            color,
+            fontWeight = peso,
+            textAlign = TextAlign.End,
+            style = estilo
+        )
     }
 }
 

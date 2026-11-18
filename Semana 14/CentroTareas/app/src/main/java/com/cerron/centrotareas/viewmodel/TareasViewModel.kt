@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.cerron.centrotareas.data.TareasRepository
 import com.cerron.centrotareas.model.CargaUi
 import com.cerron.centrotareas.model.PrimosUi
+import com.cerron.centrotareas.model.TiempoCarga
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -87,6 +88,14 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
 
+    // Mejora: tiempos acumulados de las cargas exitosas
+    private val _tiempos = MutableStateFlow<List<TiempoCarga>>(emptyList())
+    val tiempos: StateFlow<List<TiempoCarga>> = _tiempos.asStateFlow()
+
+    fun limpiarTiempos() {
+        _tiempos.value = emptyList()
+    }
+
     fun cargarUnaPorUna() {
         ejecutarCarga("Una por una") {
             val perfil = repo.cargarPerfil()
@@ -115,11 +124,13 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             val inicio = System.currentTimeMillis()
             try {
                 val (perfil, pedidos) = cargar()
+                val milisegundos = System.currentTimeMillis() - inicio
+                _tiempos.value = _tiempos.value + TiempoCarga(modo, milisegundos)
                 _carga.value = CargaUi.Exito(
                     modo = modo,
                     perfil = perfil,
                     pedidos = pedidos.size,
-                    milisegundos = System.currentTimeMillis() - inicio
+                    milisegundos = milisegundos
                 )
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
