@@ -68,8 +68,8 @@ private fun TarjetaProgreso(vm: TareasViewModel) {
         Button(onClick = { toques++ }) {
             Text("Tócame: $toques")
         }
-        Button(onClick = { vm.tareaLargaMala() }) {
-            Text("Tarea larga (MAL)")
+        Button(onClick = { vm.tareaLarga() }) {
+            Text("Tarea larga")
         }
         Text(mensaje)
     }
