@@ -2,8 +2,11 @@ package com.cerron.campusgps.ui
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -46,6 +49,12 @@ fun PantallaMapa(vm: MapaViewModel) {
  }
  Scaffold(topBar = { TopAppBar(title = { Text("CampusGPS", fontWeight = FontWeight.Bold) }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary, titleContentColor = MaterialTheme.colorScheme.onPrimary)) }) { padding ->
   val horizontal = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+  val botonUbicacion: @Composable () -> Unit = {
+   Button(onClick = { alPulsar() }, enabled = estado != UbicacionUi.Buscando, modifier = Modifier.padding(top = 12.dp)) {
+    if (estado == UbicacionUi.Buscando) { CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
+    Text(if (estado == UbicacionUi.Buscando) "Buscando…" else "Obtener mi ubicación", fontWeight = FontWeight.Bold)
+   }
+  }
   val mapa: @Composable (Modifier) -> Unit = { modificador ->
    if (BuildConfig.MAPS_CONFIGURADO) {
     MapaUbicacion(estado, lugares, seleccionado, solicitudCamara, modificador)
@@ -56,18 +65,12 @@ fun PantallaMapa(vm: MapaViewModel) {
    }
   }
   val controles: @Composable () -> Unit = {
-   Button(onClick = { alPulsar() }, enabled = estado != UbicacionUi.Buscando, modifier = Modifier.padding(top = 12.dp)) {
-    if (estado == UbicacionUi.Buscando) { CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)) }
-    Text(if (estado == UbicacionUi.Buscando) "Buscando…" else "Obtener mi ubicación", fontWeight = FontWeight.Bold)
-   }
+   botonUbicacion()
    when (val actual = estado) {
     UbicacionUi.Inicial -> Text("Pulsa el botón para empezar", Modifier.padding(top = 6.dp))
     is UbicacionUi.Lista -> {
      Text("Latitud: ${formatearCoordenada(actual.posicion.latitud)}", Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodySmall)
      Text("Longitud: ${formatearCoordenada(actual.posicion.longitud)}", style = MaterialTheme.typography.bodySmall)
-    }
-    is UbicacionUi.Error -> Surface(Modifier.fillMaxWidth().padding(top = 12.dp), color = MaterialTheme.colorScheme.errorContainer, shape = MaterialTheme.shapes.medium) {
-     Text(actual.mensaje, Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onErrorContainer)
     }
     else -> Unit
    }
@@ -84,7 +87,16 @@ fun PantallaMapa(vm: MapaViewModel) {
    }
    ListaLugares(lugares, seleccionado, { vm.seleccionar(it) }, Modifier.fillMaxWidth().padding(top = 4.dp).height(220.dp))
   }
-  if (horizontal) {
+  val error = estado as? UbicacionUi.Error
+  if (error != null) {
+   Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    botonUbicacion()
+    Spacer(Modifier.height(24.dp))
+    MensajeError(error, abrirAjustes = {
+     contexto.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", contexto.packageName, null)))
+    }, reintentar = { alPulsar() })
+   }
+  } else if (horizontal) {
    Row(Modifier.fillMaxSize().padding(padding)) {
     mapa(Modifier.weight(1f).fillMaxHeight())
     Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) { controles() }
