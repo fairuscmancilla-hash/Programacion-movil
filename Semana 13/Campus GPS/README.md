@@ -28,10 +28,13 @@ com.cerron.campusgps/
 │   ├── UbicacionRepository.kt
 │   ├── UbicacionRepositoryGoogle.kt
 │   ├── LugaresRepository.kt
-│   └── LugaresRepositoryLocal.kt
+│   ├── LugaresRepositoryLocal.kt
+│   ├── UltimoLugarRepository.kt
+│   └── UltimoLugarRepositoryDataStore.kt
 ├── util/
 │   ├── Distancia.kt
-│   └── Formato.kt
+│   ├── Formato.kt
+│   └── Filtros.kt
 ├── viewmodel/
 │   ├── MapaViewModel.kt
 │   └── CampusViewModelFactory.kt
@@ -40,6 +43,8 @@ com.cerron.campusgps/
     ├── MapaUbicacion.kt
     ├── ListaLugares.kt
     ├── MensajeError.kt
+    ├── FiltroCategorias.kt
+    ├── SelectorRadio.kt
     └── theme/
         └── Theme.kt
 ```
@@ -54,7 +59,9 @@ flowchart TD
     VM --> L[LugaresRepository: interface]
     U --> G[UbicacionRepositoryGoogle: FusedLocationProviderClient]
     L --> F[LugaresRepositoryLocal: 5 lugares fijos]
-    VM --> D[util: distancia]
+    VM --> D[util: distancia y filtros]
+    VM --> R[UltimoLugarRepository: interface]
+    R --> S[UltimoLugarRepositoryDataStore: DataStore]
 ```
 
 `MainActivity` crea las dependencias con `CampusViewModelFactory`. El ViewModel solo conoce las interfaces y no recibe `Context`. Los Composables dibujan el estado y no calculan distancias.
@@ -85,6 +92,20 @@ flowchart TD
 | Ubicación apagada | Mensaje de GPS con Reintentar | ✅ |
 | Rotar la pantalla | No se pierden la ubicación ni la lista | ✅ |
 | Revisar el repositorio | La clave no aparece y `local.properties` no está subido | ✅ |
+
+## Fase 2: mejoras con IA
+
+| Mejora | Qué hace | Capas que cambian |
+|---|---|---|
+| Filtrar por categoría | Chips que muestran solo los lugares de esa categoría en el mapa y en la lista | ViewModel + View |
+| Radio de cercanía | Selector de 100, 200 o 500 m con un círculo en el mapa; la lista marca los lugares dentro del radio | ViewModel + View |
+| Último lugar visitado | Guarda con DataStore el último lugar seleccionado y lo recupera al abrir la app | Repository + ViewModel + View |
+
+| Filtro por categoría | Radio de cercanía | Último lugar visitado |
+|---|---|---|
+| ![Filtro por categoría](docs/capturas/06-filtro.png) | ![Radio de cercanía](docs/capturas/07-radio.png) | ![Último lugar visitado](docs/capturas/08-ultimo.png) |
+
+El detalle de los prompts y las decisiones está en [PROMPTS.md](PROMPTS.md).
 
 ## Para pensar
 
