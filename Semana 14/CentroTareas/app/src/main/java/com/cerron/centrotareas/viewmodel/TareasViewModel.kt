@@ -93,7 +93,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     fun cargarUnaPorUna() {
         ejecutarCarga("Una por una") {
             val perfil = repo.cargarPerfil()
-            val pedidos = repo.cargarPedidos(false)
+            val pedidos = repo.cargarPedidos(_simularError.value)
             Pair(perfil, pedidos)
         }
     }
@@ -102,7 +102,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         ejecutarCarga("A la vez") {
             coroutineScope {
                 val perfil = async { repo.cargarPerfil() }
-                val pedidos = async { repo.cargarPedidos(false) }
+                val pedidos = async { repo.cargarPedidos(_simularError.value) }
                 Pair(perfil.await(), pedidos.await())
             }
         }
@@ -116,15 +116,26 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         viewModelScope.launch {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
-            val (perfil, pedidos) = cargar()
-            _carga.value = CargaUi.Exito(
-                modo = modo,
-                perfil = perfil,
-                pedidos = pedidos.size,
-                milisegundos = System.currentTimeMillis() - inicio
-            )
+            try {
+                val (perfil, pedidos) = cargar()
+                _carga.value = CargaUi.Exito(
+                    modo = modo,
+                    perfil = perfil,
+                    pedidos = pedidos.size,
+                    milisegundos = System.currentTimeMillis() - inicio
+                )
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")
+            }
         }
     }
 
-    // TODO Paso 7: simularError y manejo de errores
+    // Paso 7: interruptor que hace fallar la carga de pedidos
+    private val _simularError = MutableStateFlow(false)
+    val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
+
+    fun cambiarSimularError(valor: Boolean) {
+        _simularError.value = valor
+    }
 }

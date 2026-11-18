@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -173,9 +174,18 @@ private fun RecuadroExito(contenido: @Composable ColumnScope.() -> Unit) {
 @Composable
 private fun TarjetaCargas(vm: TareasViewModel) {
     val carga by vm.carga.collectAsState()
+    val simularError by vm.simularError.collectAsState()
     val cargando = carga is CargaUi.Cargando
 
     Tarjeta("Dos cargas") {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Switch(checked = simularError, onCheckedChange = { vm.cambiarSimularError(it) })
+            Text("Simular error")
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { vm.cargarUnaPorUna() }, enabled = !cargando) {
                 Text("Una por una")
@@ -193,8 +203,23 @@ private fun TarjetaCargas(vm: TareasViewModel) {
                 Text("Pedidos: ${estado.pedidos}", color = VerdeTexto)
                 Text("Tiempo: ${estado.milisegundos} ms", color = VerdeTexto)
             }
-            // TODO Paso 7: recuadro de error con Reintentar
-            is CargaUi.Error -> Unit
+            is CargaUi.Error -> {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = estado.mensaje,
+                        modifier = Modifier.padding(12.dp),
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                OutlinedButton(onClick = { vm.cargarALaVez() }) {
+                    Text("Reintentar")
+                }
+            }
         }
     }
 }
