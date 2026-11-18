@@ -91,6 +91,22 @@ Comprobación del algoritmo de primos:
 
 El valor por defecto del campo es **3 000 000**. En este emulador, 500 000 tardaba 616 ms y 3 000 000 tarda unos 3,3 s, dentro del rango de 2 a 5 s que pide la guía.
 
+## Fase 2: mejoras
+
+Las mejoras están en la rama `mejora-ia-semana14` y mantienen la arquitectura MVVM + Repository.
+
+| Mejora | Qué logra | Capas que cambian |
+| --- | --- | --- |
+| Progreso desde el Repository | La tarea simulada pasa al Repository y expone su avance con `flow { emit(...) }` y `flowOn(Dispatchers.Default)` | Repository + ViewModel |
+| Primos con progreso | Muestra una barra y el porcentaje del cálculo mientras avanza, y se puede cancelar | Repository + ViewModel + View |
+| Comparación de tiempos | Acumula los tiempos de Una por una y A la vez, con veces, último, promedio y ahorro. Las cargas con error no se registran | ViewModel + View |
+
+Al calcular el porcentaje, contar los primos hasta 3 000 000 tarda entre 4,3 y 5,7 s en el emulador.
+
+| Primos con porcentaje | Tiempos acumulados |
+| :---: | :---: |
+| <img src="docs/capturas/06_primos_con_porcentaje.png" width="260" alt="Barra de progreso del cálculo de primos con su porcentaje"> | <img src="docs/capturas/07_comparacion_tiempos.png" width="260" alt="Tabla de tiempos acumulados de las dos cargas"> |
+
 ## Para pensar
 
 **1. ¿Por qué no se veía Trabajando... en el Paso 1?**
