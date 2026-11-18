@@ -13,16 +13,23 @@ fun MapaUbicacion(estado: UbicacionUi, lugares: List<LugarConDistancia>, selecci
  LaunchedEffect(estado, cargado) {
   if (cargado && estado is UbicacionUi.Lista) camara.animate(CameraUpdateFactory.newLatLngZoom(LatLng(estado.posicion.latitud, estado.posicion.longitud), 16f))
  }
+ LaunchedEffect(seleccionado, cargado) {
+  if (cargado) lugares.firstOrNull { it.lugar.id == seleccionado }?.lugar?.let {
+   camara.animate(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitud, it.longitud), 17f))
+  }
+ }
  val ajustes = remember { MapUiSettings(zoomControlsEnabled = false, mapToolbarEnabled = false) }
  GoogleMap(modifier = modifier, cameraPositionState = camara, uiSettings = ajustes, onMapLoaded = { cargado = true }) {
   if (estado is UbicacionUi.Lista) {
    val propio = rememberUpdatedMarkerState(LatLng(estado.posicion.latitud, estado.posicion.longitud))
-   LaunchedEffect(estado, cargado) { if (cargado) propio.showInfoWindow() }
+   LaunchedEffect(estado, cargado) { if (cargado && seleccionado == null) propio.showInfoWindow() }
    Marker(state = propio, title = "Estás aquí")
   }
   lugares.forEach { item -> key(item.lugar.id) {
    val lugar = item.lugar
-   Marker(state = rememberUpdatedMarkerState(LatLng(lugar.latitud, lugar.longitud)), title = lugar.nombre, snippet = lugar.categoria,
+   val marcador = rememberUpdatedMarkerState(LatLng(lugar.latitud, lugar.longitud))
+   LaunchedEffect(seleccionado, cargado) { if (cargado && seleccionado == lugar.id) marcador.showInfoWindow() }
+   Marker(state = marcador, title = lugar.nombre, snippet = lugar.categoria,
     icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
   } }
  }

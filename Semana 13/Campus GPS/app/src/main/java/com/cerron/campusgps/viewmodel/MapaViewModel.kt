@@ -19,6 +19,7 @@ class MapaViewModel(private val ubicacionRepo: UbicacionRepository, private val 
   viewModelScope.launch {
    ubicacionRepo.obtenerPosicion().onSuccess {
     actualizarDistancias(it)
+    _seleccionado.value = null
     _estado.value = UbicacionUi.Lista(it)
    }.onFailure {
     _estado.value = UbicacionUi.Error(mensajeDe(it))
@@ -28,6 +29,7 @@ class MapaViewModel(private val ubicacionRepo: UbicacionRepository, private val 
  private fun actualizarDistancias(pos: Posicion) {
   _lugares.value = lugaresRepo.obtenerLugares().map { LugarConDistancia(it, distanciaMetros(pos, it)) }.sortedBy { it.metros }
  }
+ fun seleccionar(id: Int?) { _seleccionado.value = id }
  fun permisoDenegado() { _estado.value = UbicacionUi.Error("Sin permiso de ubicación no puedo mostrar dónde estás") }
  private fun mensajeDe(e: Throwable): String = when (e) {
   is SecurityException -> "Falta el permiso de ubicación"
