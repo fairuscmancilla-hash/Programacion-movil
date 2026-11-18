@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,12 +17,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.cerron.campusgps.BuildConfig
 import com.cerron.campusgps.model.*
 import com.cerron.campusgps.util.formatearCoordenada
+import com.cerron.campusgps.util.formatearDistancia
 import com.cerron.campusgps.viewmodel.MapaViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,6 +34,8 @@ fun PantallaMapa(vm: MapaViewModel) {
  val estado by vm.estado.collectAsState()
  val lugares by vm.lugares.collectAsState()
  val seleccionado by vm.seleccionado.collectAsState()
+ val solicitudCamara by vm.solicitudCamara.collectAsState()
+ val cercano by vm.masCercano.collectAsState()
  val contexto = LocalContext.current
  val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { resultado ->
   if (resultado.values.any { it }) vm.buscar() else vm.permisoDenegado()
@@ -41,7 +48,7 @@ fun PantallaMapa(vm: MapaViewModel) {
   val horizontal = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
   val mapa: @Composable (Modifier) -> Unit = { modificador ->
    if (BuildConfig.MAPS_CONFIGURADO) {
-    MapaUbicacion(estado, lugares, seleccionado, modificador)
+    MapaUbicacion(estado, lugares, seleccionado, solicitudCamara, modificador)
    } else {
     Box(modificador.background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
      Text("Configura la clave de Google Maps en local.properties", Modifier.padding(16.dp))
@@ -63,6 +70,17 @@ fun PantallaMapa(vm: MapaViewModel) {
      Text(actual.mensaje, Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onErrorContainer)
     }
     else -> Unit
+   }
+   OutlinedButton(onClick = { vm.seleccionar(cercano?.id) }, enabled = cercano != null, modifier = Modifier.padding(top = 4.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.tertiary, contentColor = MaterialTheme.colorScheme.onTertiary),
+    border = BorderStroke(2.dp, if (cercano != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))) {
+    Text("Ir al más cercano", fontWeight = FontWeight.Bold)
+   }
+   cercano?.let { lugar ->
+    val metros = lugares.firstOrNull { it.lugar.id == lugar.id }?.metros
+    Text(buildAnnotatedString {
+     withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Más cercano: ") }
+     append("${lugar.nombre} (${metros?.let(::formatearDistancia) ?: "Sin calcular"})")
+    }, Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium)
    }
    ListaLugares(lugares, seleccionado, { vm.seleccionar(it) }, Modifier.fillMaxWidth().padding(top = 4.dp).height(220.dp))
   }

@@ -22,6 +22,7 @@ import com.cerron.campusgps.ui.theme.GlacierSuave
 import com.cerron.campusgps.util.formatearDistancia
 @Composable
 fun ListaLugares(lugares: List<LugarConDistancia>, seleccionado: Int?, onClick: (Int) -> Unit, modifier: Modifier = Modifier) {
+ val cercano = lugares.firstOrNull { it.metros != null }?.lugar?.id
  val estadoLista = rememberLazyListState()
  val orden = lugares.joinToString(",") { it.lugar.id.toString() }
  var ordenAnterior by rememberSaveable { mutableStateOf(orden) }
@@ -39,7 +40,7 @@ fun ListaLugares(lugares: List<LugarConDistancia>, seleccionado: Int?, onClick: 
     colors = CardDefaults.cardColors(containerColor = if (elegido) GlacierSeleccion else GlacierSuave),
     border = if (elegido) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null) {
     Row(Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-     Box(Modifier.size(10.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
+     Box(Modifier.size(10.dp).background(if (item.lugar.id == cercano) Color(0xFF2EA043) else MaterialTheme.colorScheme.primary, CircleShape))
      Spacer(Modifier.width(12.dp))
      Column(Modifier.weight(1f)) {
       Text(item.lugar.nombre, color = Color.Black, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
