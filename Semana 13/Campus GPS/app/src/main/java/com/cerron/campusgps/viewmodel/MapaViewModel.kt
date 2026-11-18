@@ -5,13 +5,18 @@ import androidx.lifecycle.viewModelScope
 import com.cerron.campusgps.data.*
 import com.cerron.campusgps.model.*
 import com.cerron.campusgps.util.distanciaMetros
+import com.cerron.campusgps.util.filtrarPorCategoria
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 class MapaViewModel(private val ubicacionRepo: UbicacionRepository, private val lugaresRepo: LugaresRepository) : ViewModel() {
  private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
  val estado = _estado.asStateFlow()
  private val _lugares = MutableStateFlow(lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) })
- val lugares = _lugares.asStateFlow()
+ val categorias: List<String> = lugaresRepo.obtenerLugares().map { it.categoria }.distinct()
+ private val _categoria = MutableStateFlow<String?>(null)
+ val categoria = _categoria.asStateFlow()
+ val lugares: StateFlow<List<LugarConDistancia>> = combine(_lugares, _categoria) { lista, categoria -> filtrarPorCategoria(lista, categoria) }
+  .stateIn(viewModelScope, SharingStarted.Eagerly, _lugares.value)
  private val _seleccionado = MutableStateFlow<Int?>(null)
  val seleccionado = _seleccionado.asStateFlow()
  // Cambia en cada selección para mover la cámara aunque se elija el mismo lugar otra vez.
@@ -46,6 +51,11 @@ class MapaViewModel(private val ubicacionRepo: UbicacionRepository, private val 
  fun seleccionar(id: Int?) {
   _seleccionado.value = id
   _solicitudCamara.update { it + 1 }
+ }
+ fun seleccionarCategoria(nueva: String?) {
+  _categoria.value = nueva
+  val sigueVisible = filtrarPorCategoria(_lugares.value, nueva).any { it.lugar.id == _seleccionado.value }
+  if (!sigueVisible) _seleccionado.value = null
  }
  fun permisoDenegado() { _estado.value = UbicacionUi.Error("Sin permiso de ubicación no puedo mostrar dónde estás", TipoError.SIN_PERMISO) }
 }

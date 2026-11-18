@@ -39,6 +39,7 @@ fun PantallaMapa(vm: MapaViewModel) {
  val seleccionado by vm.seleccionado.collectAsState()
  val solicitudCamara by vm.solicitudCamara.collectAsState()
  val cercano by vm.masCercano.collectAsState()
+ val categoria by vm.categoria.collectAsState()
  val contexto = LocalContext.current
  val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { resultado ->
   if (resultado.values.any { it }) vm.buscar() else vm.permisoDenegado()
@@ -85,7 +86,8 @@ fun PantallaMapa(vm: MapaViewModel) {
      append("${lugar.nombre} (${metros?.let(::formatearDistancia) ?: "Sin calcular"})")
     }, Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium)
    }
-   ListaLugares(lugares, seleccionado, { vm.seleccionar(it) }, Modifier.fillMaxWidth().padding(top = 4.dp).height(220.dp))
+   FiltroCategorias(vm.categorias, categoria, vm::seleccionarCategoria)
+   ListaLugares(lugares, seleccionado, { vm.seleccionar(it) }, Modifier.fillMaxWidth().height(170.dp))
   }
   val error = estado as? UbicacionUi.Error
   if (error != null) {
