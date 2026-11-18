@@ -20,5 +20,10 @@ fun MapaUbicacion(estado: UbicacionUi, lugares: List<LugarConDistancia>, selecci
    LaunchedEffect(estado, cargado) { if (cargado) propio.showInfoWindow() }
    Marker(state = propio, title = "Estás aquí")
   }
+  lugares.forEach { item -> key(item.lugar.id) {
+   val lugar = item.lugar
+   Marker(state = rememberUpdatedMarkerState(LatLng(lugar.latitud, lugar.longitud)), title = lugar.nombre, snippet = lugar.categoria,
+    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+  } }
  }
 }
