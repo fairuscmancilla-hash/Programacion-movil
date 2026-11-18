@@ -1,13 +1,14 @@
 package com.cerron.centrotareas.data
 
 import android.util.Log
+import com.cerron.centrotareas.model.AvancePrimos
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class TareasRepositoryLocal : TareasRepository {
@@ -31,14 +32,19 @@ class TareasRepositoryLocal : TareasRepository {
         return listOf("Pedido 101", "Pedido 102", "Pedido 103")
     }
 
-    override suspend fun contarPrimos(hasta: Int): Int = withContext(Dispatchers.Default) {
+    override fun contarPrimosConAvance(hasta: Int): Flow<AvancePrimos> = flow {
         var cantidad = 0
+        var ultimoPorcentaje = -1
         for (n in 2..hasta) {
-            ensureActive()
+            currentCoroutineContext().ensureActive()
             if (esPrimo(n)) cantidad++
+            val porcentaje = (n.toLong() * 100 / hasta).toInt()
+            if (porcentaje != ultimoPorcentaje) {
+                ultimoPorcentaje = porcentaje
+                emit(AvancePrimos(porcentaje, cantidad))
+            }
         }
-        cantidad
-    }
+    }.flowOn(Dispatchers.Default)
 
     private fun esPrimo(n: Int): Boolean {
         if (n < 2) return false

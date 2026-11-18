@@ -507,7 +507,24 @@ private fun TarjetaPrimos(vm: TareasViewModel) {
         }
         when (val estado = primos) {
             PrimosUi.Inicial -> Unit
-            PrimosUi.Calculando -> Text("Calculando...", color = TextoSuave)
+            is PrimosUi.Calculando -> {
+                LinearProgressIndicator(
+                    progress = { estado.porcentaje / 100f },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp),
+                    color = NaranjaVivo,
+                    trackColor = AzulHielo,
+                    strokeCap = StrokeCap.Round,
+                    gapSize = 0.dp,
+                    drawStopIndicator = {}
+                )
+                Text(
+                    text = "Calculando... ${estado.porcentaje} %",
+                    color = TextoSuave,
+                    style = EstiloNumeros
+                )
+            }
             PrimosUi.Cancelado -> Text("Cancelado", color = TextoSuave)
             is PrimosUi.Listo -> RecuadroExito {
                 Text(
