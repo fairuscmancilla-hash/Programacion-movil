@@ -41,6 +41,7 @@ fun PantallaMapa(vm: MapaViewModel) {
  val cercano by vm.masCercano.collectAsState()
  val categoria by vm.categoria.collectAsState()
  val radio by vm.radio.collectAsState()
+ val ultimo by vm.ultimoLugar.collectAsState()
  val contexto = LocalContext.current
  val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { resultado ->
   if (resultado.values.any { it }) vm.buscar() else vm.permisoDenegado()
@@ -87,6 +88,7 @@ fun PantallaMapa(vm: MapaViewModel) {
      append("${lugar.nombre} (${metros?.let(::formatearDistancia) ?: "Sin calcular"})")
     }, Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium)
    }
+   ultimo?.let { Text("Último lugar visitado: ${it.nombre}", style = MaterialTheme.typography.bodySmall) }
    SelectorRadio(vm.radiosDisponibles, radio, vm::seleccionarRadio)
    FiltroCategorias(vm.categorias, categoria, vm::seleccionarCategoria)
    ListaLugares(lugares, seleccionado, { vm.seleccionar(it) }, Modifier.fillMaxWidth().height(170.dp))

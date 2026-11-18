@@ -30,6 +30,7 @@ dependencies {
  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
  implementation("com.google.maps.android:maps-compose:8.4.0")
  implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+ implementation("androidx.datastore:datastore-preferences:1.1.1")
  testImplementation("junit:junit:4.13.2")
  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 }

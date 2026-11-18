@@ -23,7 +23,7 @@ class FaseUnoTest {
    override fun playServicesDisponible() = false
    override suspend fun obtenerPosicion(): Result<Posicion> = error("No debe llamarse")
   }
-  val vm = MapaViewModel(repo, LugaresRepositoryLocal())
+  val vm = MapaViewModel(repo, LugaresRepositoryLocal(), UltimoLugarFalso())
   vm.buscar()
   assertEquals(TipoError.SIN_PLAY_SERVICES, (vm.estado.value as UbicacionUi.Error).tipo)
  }
@@ -34,7 +34,7 @@ class FaseUnoTest {
     override fun playServicesDisponible() = true
     override suspend fun obtenerPosicion(): Result<Posicion> = Result.failure(GpsNoDisponibleException())
    }
-   val vm = MapaViewModel(repo, LugaresRepositoryLocal())
+   val vm = MapaViewModel(repo, LugaresRepositoryLocal(), UltimoLugarFalso())
    vm.buscar(); advanceUntilIdle()
    assertEquals(TipoError.GPS_APAGADO, (vm.estado.value as UbicacionUi.Error).tipo)
    vm.permisoDenegado()

@@ -9,7 +9,7 @@ import com.cerron.campusgps.util.filtrarPorCategoria
 import com.cerron.campusgps.util.marcarDentroDelRadio
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-class MapaViewModel(private val ubicacionRepo: UbicacionRepository, private val lugaresRepo: LugaresRepository) : ViewModel() {
+class MapaViewModel(private val ubicacionRepo: UbicacionRepository, private val lugaresRepo: LugaresRepository, private val ultimoRepo: UltimoLugarRepository) : ViewModel() {
  private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
  val estado = _estado.asStateFlow()
  private val _lugares = MutableStateFlow(lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) })
@@ -28,6 +28,16 @@ class MapaViewModel(private val ubicacionRepo: UbicacionRepository, private val 
  val solicitudCamara = _solicitudCamara.asStateFlow()
  val masCercano: StateFlow<Lugar?> = lugares.map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
   .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+ val ultimoLugar: StateFlow<Lugar?> = ultimoRepo.ultimoLugarId.map { id -> lugaresRepo.obtenerLugares().firstOrNull { it.id == id } }
+  .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+ init {
+  viewModelScope.launch {
+   ultimoRepo.ultimoLugarId.first()?.let { id ->
+    _seleccionado.value = id
+    _solicitudCamara.update { it + 1 }
+   }
+  }
+ }
  fun buscar() {
   if (_estado.value == UbicacionUi.Buscando) return
   if (!ubicacionRepo.playServicesDisponible()) {
@@ -55,6 +65,7 @@ class MapaViewModel(private val ubicacionRepo: UbicacionRepository, private val 
  fun seleccionar(id: Int?) {
   _seleccionado.value = id
   _solicitudCamara.update { it + 1 }
+  if (id != null) viewModelScope.launch { ultimoRepo.guardar(id) }
  }
  fun seleccionarCategoria(nueva: String?) {
   _categoria.value = nueva
