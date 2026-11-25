@@ -33,12 +33,13 @@ App Android que **muestra notificaciones y escucha lo que pasa en el celular**. 
 
 ```
 com.tecsup.avisoscampus/
-├── AvisosApp.kt                 Application: crea el canal
+├── AvisosApp.kt                 Application: crea los canales, el DataStore y el Repository
 ├── MainActivity.kt
 ├── model/
-│   └── Modelos.kt               Aviso, Origen, PermisoUi
+│   └── Modelos.kt               Aviso, Origen, EventoAviso, PermisoUi
 ├── data/
-│   └── AvisosRepository.kt      interface + AvisosRepositoryMemoria
+│   ├── AvisosRepository.kt      interface + AvisosRepositoryMemoria
+│   └── AvisosRepositoryDataStore.kt   historial guardado en disco (Fase 2)
 ├── notificacion/
 │   └── Notificador.kt           canal, permiso y mostrar
 ├── receiver/
@@ -101,6 +102,26 @@ En `viewmodel/` no hay `Context`, `NotificationManager` ni `BroadcastReceiver`. 
 | Permiso denegado y **Mostrar aviso** | Mensaje de error, aviso en el historial y la app no se cierra | ✅ |
 | Rotar la pantalla durante el recordatorio | La cuenta regresiva continúa | ✅ |
 | Revisar el código | No hay Context en `viewmodel/` y todo receptor registrado se quita en `onDispose` | ✅ |
+
+## Fase 2 · Mejoras con IA (rama `mejora-ia-semana15`)
+
+Tres mejoras hechas con ayuda de Claude Code, sin romper MVVM + Repository. El detalle de los prompts y de lo que se corrigió está en [PROMPTS.md](PROMPTS.md).
+
+| Mejora | Qué logra | Capas que cambian |
+|---|---|---|
+| **Dos canales** | Canal **Urgentes** con `IMPORTANCE_HIGH`: el recordatorio aparece emergente. «Tarea lista» y el modo avión siguen en **Avisos** | Notificador + ViewModel |
+| **Texto largo** | `BigTextStyle`: contraída muestra el texto corto y, al expandirla, el texto completo con el origen como resumen | Notificador + ViewModel |
+| **Historial persistente** | El historial se guarda con **DataStore** y no se pierde al cerrar la app. El id de las notificaciones sigue creciendo entre sesiones | Repository + ViewModel |
+
+Cómo quedan las capas:
+
+- El ViewModel emite `EventoAviso(aviso, urgente, detalle)`: decide **qué** avisar y si es urgente, pero no conoce los canales.
+- `AvisosApp` crea el DataStore y se lo entrega a `AvisosRepositoryDataStore`, así el Repository no recibe `Context`.
+- El Repository expone un `Flow` y `registrar` es `suspend`; el ViewModel lo convierte en `StateFlow` con `stateIn`.
+
+| Canal Urgentes | Texto largo | Historial persistente |
+|---|---|---|
+| ![Canal Urgentes](docs/capturas/06_canal_urgente.png) | ![Texto largo](docs/capturas/07_texto_largo.png) | ![Historial persistente](docs/capturas/08_historial_persistente.png) |
 
 ## Para pensar
 
