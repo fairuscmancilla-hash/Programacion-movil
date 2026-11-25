@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tecsup.murocampus.ui.PantallaCrear
 import com.tecsup.murocampus.ui.PantallaDetalle
+import com.tecsup.murocampus.ui.PantallaEditar
 import com.tecsup.murocampus.ui.PantallaLista
 import com.tecsup.murocampus.ui.theme.MuroCampusTheme
 import com.tecsup.murocampus.viewmodel.PostsViewModel
@@ -33,6 +34,7 @@ class MainActivity : ComponentActivity() {
                 // Navegacion simple: null = lista; un id = detalle; creando = formulario
                 var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
                 var creando by rememberSaveable { mutableStateOf(false) }
+                var editando by rememberSaveable { mutableStateOf(false) }
 
                 val id = idSeleccionado
                 when {
@@ -41,10 +43,22 @@ class MainActivity : ComponentActivity() {
                         BackHandler(onBack = cerrar)
                         PantallaCrear(vm = vm, onVolver = cerrar)
                     }
+                    id != null && editando -> {
+                        // Mejora 2: Editar vuelve al detalle, que ya muestra el titulo nuevo
+                        val cerrar = { editando = false; vm.reiniciarEdicion() }
+                        BackHandler(onBack = cerrar)
+                        PantallaEditar(vm = vm, onVolver = cerrar)
+                    }
                     id != null -> {
                         val cerrar = { idSeleccionado = null; vm.reiniciarEliminacion() }
                         BackHandler(onBack = cerrar)
-                        PantallaDetalle(id = id, vm = vm, onVolver = cerrar, onEliminado = cerrar)
+                        PantallaDetalle(
+                            id = id,
+                            vm = vm,
+                            onVolver = cerrar,
+                            onEditar = { editando = true },
+                            onEliminado = cerrar
+                        )
                     }
                     else -> PantallaLista(
                         vm = vm,

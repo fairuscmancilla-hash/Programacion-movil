@@ -36,3 +36,9 @@ data class NuevoPost(
     val title: String,
     val body: String
 )
+
+// Mejora 2: cuerpo del PATCH posts/{id}. Solo viaja el campo que cambia.
+@Serializable
+data class CambioTitulo(
+    val title: String
+)

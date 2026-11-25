@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -54,6 +55,7 @@ fun PantallaDetalle(
     id: Int,
     vm: PostsViewModel,
     onVolver: () -> Unit,
+    onEditar: () -> Unit,
     onEliminado: () -> Unit
 ) {
     val estado by vm.detalle.collectAsStateWithLifecycle()
@@ -73,6 +75,9 @@ fun PantallaDetalle(
             BarraConVolver(titulo = "Detalle", onVolver = onVolver) {
                 // Solo se puede borrar cuando la publicacion ya cargo
                 if (estado is UiState.Exito) {
+                    IconButton(onClick = onEditar, enabled = !eliminando) {
+                        Icon(Icons.Filled.Edit, contentDescription = "Editar título")
+                    }
                     if (eliminando) {
                         CircularProgressIndicator(
                             modifier = Modifier.padding(end = 16.dp).size(22.dp),

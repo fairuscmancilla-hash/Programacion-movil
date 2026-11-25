@@ -46,6 +46,10 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _eliminacion = MutableStateFlow<UiState<Int>?>(null)
     val eliminacion: StateFlow<UiState<Int>?> = _eliminacion.asStateFlow()
 
+    // ---------- Mejora 2: editar titulo (Exito lleva la respuesta del servidor) ----------
+    private val _edicion = MutableStateFlow<UiState<Post>?>(null)
+    val edicion: StateFlow<UiState<Post>?> = _edicion.asStateFlow()
+
     // Trabajos en curso: si llega una nueva peticion se cancela la anterior
     private var trabajoLista: Job? = null
     private var trabajoDetalle: Job? = null
@@ -133,5 +137,35 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     /** Al salir del detalle se olvida el resultado de la eliminacion. */
     fun reiniciarEliminacion() {
         _eliminacion.value = null
+    }
+
+    /**
+     * Mejora 2: envia PATCH posts/{id} con el titulo nuevo. Con la respuesta se actualizan
+     * el detalle abierto y la lista ya descargada, sin volver a pedirlos.
+     */
+    fun editarTitulo(id: Int, titulo: String) {
+        val limpio = titulo.trim()
+        if (limpio.isEmpty() || _edicion.value is UiState.Cargando) return
+        viewModelScope.launch {
+            _edicion.value = UiState.Cargando
+            repo.editarTitulo(id, limpio)
+                .onSuccess { post ->
+                    val detalleActual = _detalle.value
+                    if (detalleActual is UiState.Exito && detalleActual.datos.post.id == id) {
+                        _detalle.value = UiState.Exito(detalleActual.datos.copy(post = post))
+                    }
+                    val listaActual = _lista.value
+                    if (listaActual is UiState.Exito) {
+                        _lista.value = UiState.Exito(listaActual.datos.map { if (it.id == id) post else it })
+                    }
+                    _edicion.value = UiState.Exito(post)
+                }
+                .onFailure { _edicion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    /** Al salir de la pantalla Editar se olvida el ultimo resultado. */
+    fun reiniciarEdicion() {
+        _edicion.value = null
     }
 }
