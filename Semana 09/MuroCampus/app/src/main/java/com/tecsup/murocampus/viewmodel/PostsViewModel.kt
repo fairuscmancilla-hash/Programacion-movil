@@ -29,6 +29,10 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
     val lista: StateFlow<UiState<List<Post>>> = _lista.asStateFlow()
 
+    // ---------- Paso 8: filtro (null = Todos) ----------
+    private val _usuarioFiltro = MutableStateFlow<Int?>(null)
+    val usuarioFiltro: StateFlow<Int?> = _usuarioFiltro.asStateFlow()
+
     // ---------- Paso 7: detalle ----------
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle: StateFlow<UiState<DetalleUi>> = _detalle.asStateFlow()
@@ -41,15 +45,24 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
         cargar()
     }
 
-    /** Paso 6: Cargando -> repo -> Exito / Error. */
+    /** Paso 6: Cargando -> repo -> Exito / Error. Respeta el filtro activo. */
     fun cargar() {
         trabajoLista?.cancel()
         trabajoLista = viewModelScope.launch {
             _lista.value = UiState.Cargando
-            repo.listar()
+            val userId = _usuarioFiltro.value
+            val resultado = if (userId == null) repo.listar() else repo.porUsuario(userId)
+            resultado
                 .onSuccess { _lista.value = UiState.Exito(it) }
                 .onFailure { _lista.value = UiState.Error(mensajeDe(it)) }
         }
+    }
+
+    /** Paso 8: guarda el filtro y recarga (null -> listar(), si no -> porUsuario()). */
+    fun filtrar(userId: Int?) {
+        if (userId == _usuarioFiltro.value && _lista.value is UiState.Exito) return
+        _usuarioFiltro.value = userId
+        cargar()
     }
 
     /** Paso 7: pide la publicacion y sus comentarios a la vez; si una falla, todo es Error. */
