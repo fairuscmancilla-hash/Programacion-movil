@@ -11,14 +11,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -27,6 +35,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tecsup.murocampus.model.Post
@@ -41,8 +51,10 @@ fun PantallaLista(
     onAbrir: (Int) -> Unit,
     onCrear: () -> Unit
 ) {
-    val estado by vm.lista.collectAsStateWithLifecycle()
+    // Mejora 3: se dibuja listaVisible (lista + busqueda) en vez de lista
+    val estado by vm.listaVisible.collectAsStateWithLifecycle()
     val filtro by vm.usuarioFiltro.collectAsStateWithLifecycle()
+    val busqueda by vm.busqueda.collectAsStateWithLifecycle()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -68,12 +80,17 @@ fun PantallaLista(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             FilaFiltros(seleccionado = filtro, onElegir = vm::filtrar)
+            CampoBusqueda(texto = busqueda, onCambio = vm::buscar)
 
             // Un solo when: la pantalla solo dibuja el estado que le llega
             when (val e = estado) {
                 is UiState.Cargando -> Cargando("Cargando publicaciones...")
                 is UiState.Error -> ErrorConReintento(e.mensaje, onReintentar = vm::cargar)
-                is UiState.Exito -> ListaPosts(e.datos, onAbrir)
+                is UiState.Exito -> ListaPosts(
+                    posts = e.datos,
+                    onAbrir = onAbrir,
+                    mensajeVacio = if (busqueda.isBlank()) "Sin publicaciones" else "Sin resultados para \u201c${busqueda.trim()}\u201d"
+                )
             }
         }
     }
@@ -116,11 +133,46 @@ private fun FilaFiltros(seleccionado: Int?, onElegir: (Int?) -> Unit) {
     }
 }
 
+/** Mejora 3: campo blanco con lupa; la X borra lo escrito. */
 @Composable
-private fun ListaPosts(posts: List<Post>, onAbrir: (Int) -> Unit) {
+private fun CampoBusqueda(texto: String, onCambio: (String) -> Unit) {
+    val foco = LocalFocusManager.current
+    OutlinedTextField(
+        value = texto,
+        onValueChange = onCambio,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+        placeholder = { Text("Buscar por título") },
+        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+        trailingIcon = {
+            if (texto.isNotEmpty()) {
+                IconButton(onClick = { onCambio("") }) {
+                    Icon(Icons.Filled.Close, contentDescription = "Borrar búsqueda")
+                }
+            }
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(28.dp),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(onSearch = { foco.clearFocus() }),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            cursorColor = MaterialTheme.colorScheme.primary
+        )
+    )
+}
+
+@Composable
+private fun ListaPosts(posts: List<Post>, onAbrir: (Int) -> Unit, mensajeVacio: String) {
     if (posts.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Sin publicaciones", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(mensajeVacio, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         return
     }

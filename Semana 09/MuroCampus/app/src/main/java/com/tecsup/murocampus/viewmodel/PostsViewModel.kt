@@ -10,8 +10,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /** Paso 7: lo que necesita la pantalla de detalle. */
@@ -33,6 +36,24 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     // ---------- Paso 8: filtro (null = Todos) ----------
     private val _usuarioFiltro = MutableStateFlow<Int?>(null)
     val usuarioFiltro: StateFlow<Int?> = _usuarioFiltro.asStateFlow()
+
+    // ---------- Mejora 3: busqueda por titulo (sobre lo ya descargado, sin pedir nada a la red) ----------
+    private val _busqueda = MutableStateFlow("")
+    val busqueda: StateFlow<String> = _busqueda.asStateFlow()
+
+    /**
+     * Lo que dibuja la lista: el estado de la carga combinado con el texto buscado.
+     * Solo se filtra cuando hay datos (Exito); Cargando y Error pasan tal cual.
+     */
+    val listaVisible: StateFlow<UiState<List<Post>>> =
+        combine(_lista, _busqueda) { estado, texto ->
+            val buscado = texto.trim()
+            if (estado is UiState.Exito && buscado.isNotEmpty()) {
+                UiState.Exito(estado.datos.filter { it.title.contains(buscado, ignoreCase = true) })
+            } else {
+                estado
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), _lista.value)
 
     // ---------- Paso 7: detalle ----------
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
@@ -76,6 +97,11 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
         if (userId == _usuarioFiltro.value && _lista.value is UiState.Exito) return
         _usuarioFiltro.value = userId
         cargar()
+    }
+
+    /** Mejora 3: guarda el texto buscado; listaVisible se recalcula sola. */
+    fun buscar(texto: String) {
+        _busqueda.value = texto
     }
 
     /** Paso 7: pide la publicacion y sus comentarios a la vez; si una falla, todo es Error. */
