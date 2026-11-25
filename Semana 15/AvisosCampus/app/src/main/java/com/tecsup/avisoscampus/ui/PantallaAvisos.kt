@@ -1,10 +1,15 @@
 package com.tecsup.avisoscampus.ui
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,18 +30,30 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tecsup.avisoscampus.model.PermisoUi
 import com.tecsup.avisoscampus.notificacion.Notificador
 import com.tecsup.avisoscampus.ui.theme.AntiqueGold
+import com.tecsup.avisoscampus.ui.theme.GrisFondo
+import com.tecsup.avisoscampus.ui.theme.GrisTexto
+import com.tecsup.avisoscampus.ui.theme.RojoFondo
+import com.tecsup.avisoscampus.ui.theme.RojoTexto
+import com.tecsup.avisoscampus.ui.theme.VerdeFondo
+import com.tecsup.avisoscampus.ui.theme.VerdeTexto
 import com.tecsup.avisoscampus.viewmodel.AvisosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
+
+    val permiso by vm.permiso.collectAsState()
 
     // El ViewModel emite el evento; la pantalla (que sí tiene Context) muestra la notificación.
     LaunchedEffect(Unit) {
@@ -45,7 +63,16 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         }
     }
 
-    // TODO Paso 2: lanzador del permiso y consulta inicial con Notificador.tienePermiso
+    // ---------- Paso 2: permiso ----------
+    val lanzador = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        vm.permisoRespondido(concedido)
+    }
+
+    LaunchedEffect(Unit) {
+        if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
+    }
 
     // TODO Paso 6: DisposableEffect(escuchando) para registrar y quitar el receptor del modo avión
 
@@ -71,7 +98,25 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         ) {
             // ---------- Tarjeta: Permiso de notificaciones ----------
             TarjetaSeccion(titulo = "Permiso de notificaciones") {
-                Pendiente("TODO Paso 2: estado del permiso y botón Permitir notificaciones")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "Estado:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    EtiquetaPermiso(permiso)
+                }
+                Button(
+                    onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            lanzador.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            vm.permisoRespondido(true)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Permitir notificaciones") }
             }
 
             // ---------- Tarjeta: Avisos (Paso 3) ----------
@@ -129,6 +174,24 @@ fun TarjetaSeccion(titulo: String, contenido: @Composable ColumnScope.() -> Unit
             contenido()
         }
     }
+}
+
+@Composable
+private fun EtiquetaPermiso(permiso: PermisoUi) {
+    val (texto, fondo, color) = when (permiso) {
+        PermisoUi.SinPedir -> Triple("Sin pedir", GrisFondo, GrisTexto)
+        PermisoUi.Concedido -> Triple("Permitido", VerdeFondo, VerdeTexto)
+        PermisoUi.Denegado -> Triple("Denegado", RojoFondo, RojoTexto)
+    }
+    Text(
+        texto,
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = FontWeight.SemiBold,
+        color = color,
+        modifier = Modifier
+            .background(fondo, RoundedCornerShape(50))
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+    )
 }
 
 // Texto temporal para las funciones que aún no se implementan.
