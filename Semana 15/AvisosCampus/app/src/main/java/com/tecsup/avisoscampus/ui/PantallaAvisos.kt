@@ -25,6 +25,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -55,6 +56,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
 
     val permiso by vm.permiso.collectAsState()
+    val faltan by vm.faltan.collectAsState()
 
     // El ViewModel emite el evento; la pantalla (que sí tiene Context) muestra la notificación.
     LaunchedEffect(Unit) {
@@ -139,7 +141,25 @@ fun PantallaAvisos(vm: AvisosViewModel) {
 
             // ---------- Tarjeta: Recordatorio (Paso 5) ----------
             TarjetaSeccion(titulo = "Recordatorio") {
-                Pendiente("TODO Paso 5: Recordar en 10 s, Cancelar y Faltan Ns")
+                val corriendo = faltan != null
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Button(
+                        onClick = { vm.recordarEn(10) },
+                        enabled = !corriendo,
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Recordar en 10 s") }
+                    OutlinedButton(
+                        onClick = { vm.cancelarRecordatorio() },
+                        enabled = corriendo,
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Cancelar") }
+                }
+                Text(
+                    text = faltan?.let { "Faltan ${it}s" } ?: "Sin recordatorio activo",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (corriendo) AntiqueGold else MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             // ---------- Tarjeta: Receptor de anuncios (Paso 6) ----------
