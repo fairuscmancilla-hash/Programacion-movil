@@ -40,4 +40,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    // Mejora 3: historial persistente
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }

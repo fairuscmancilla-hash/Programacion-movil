@@ -11,15 +11,23 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
 
-    val avisos: StateFlow<List<Aviso>> = repo.avisos
+    // Mejora 3: el Repository entrega un Flow (lee de disco); el ViewModel lo convierte
+    // en StateFlow para que la pantalla tenga siempre un valor y sobreviva a la rotación.
+    val avisos: StateFlow<List<Aviso>> = repo.avisos.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList()
+    )
 
     // Evento de una sola vez: "muestra esta notificación".
     // El ViewModel NO tiene Context: lo recibe la pantalla.
