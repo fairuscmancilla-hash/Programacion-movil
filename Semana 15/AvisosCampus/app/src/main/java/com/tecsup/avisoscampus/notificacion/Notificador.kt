@@ -52,9 +52,15 @@ object Notificador {
     }
 
     // Pasos 3 y 4: construye y muestra la notificación; devuelve false si no hay permiso.
-    @SuppressLint("MissingPermission")
     // Mejora 1: si urgente es true, usa el canal Urgentes y prioridad alta (para Android < 8).
-    fun mostrar(context: Context, aviso: Aviso, urgente: Boolean = false): Boolean {
+    // Mejora 2: detalle es el texto completo que se ve al expandir (BigTextStyle).
+    @SuppressLint("MissingPermission")
+    fun mostrar(
+        context: Context,
+        aviso: Aviso,
+        urgente: Boolean = false,
+        detalle: String? = null
+    ): Boolean {
         // 1. Sin permiso no se muestra nada, pero tampoco se lanza error
         if (!tienePermiso(context)) return false
 
@@ -75,6 +81,12 @@ object Notificador {
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
+            // Mejora 2: contraída muestra aviso.texto; expandida, el detalle completo
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(detalle ?: aviso.texto)
+                    .setSummaryText(aviso.origen.texto)
+            )
             .setPriority(prioridad)
             .setContentIntent(pendiente)
             .setAutoCancel(true)

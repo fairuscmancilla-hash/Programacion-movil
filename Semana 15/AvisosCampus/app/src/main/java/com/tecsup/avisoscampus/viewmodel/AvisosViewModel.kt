@@ -44,7 +44,8 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
     fun avisarAhora() {
         viewModelScope.launch {
             val aviso = repo.registrar("Tarea lista", "Tu entrega fue registrada", Origen.BOTON)
-            _eventos.emit(EventoAviso(aviso))
+            // Mejora 2: texto largo que se lee al expandir la notificación
+            _eventos.emit(EventoAviso(aviso, detalle = DETALLE_TAREA))
         }
     }
 
@@ -67,7 +68,7 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
                     Origen.RECORDATORIO
                 )
                 // Mejora 1: el recordatorio es urgente y sale por el canal Urgentes
-                _eventos.emit(EventoAviso(aviso, urgente = true))
+                _eventos.emit(EventoAviso(aviso, urgente = true, detalle = DETALLE_RECORDATORIO))
             } finally {
                 // Termine bien o cancelado, ya no hay recordatorio activo
                 _faltan.value = null
@@ -101,5 +102,16 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
     // ---------- Paso 8: permiso denegado ----------
     fun noSePudoMostrar() {
         _mensaje.value = "Sin permiso: el aviso se guardó en el historial, pero no se mostró"
+    }
+
+    // ---------- Mejora 2: textos largos (datos ficticios) ----------
+    private companion object {
+        const val DETALLE_TAREA =
+            "Tu entrega fue registrada. El docente revisará tu laboratorio y la nota " +
+                "aparecerá en el aula virtual durante la semana. Si necesitas corregir " +
+                "algo, vuelve a subir tu repositorio antes de la fecha límite."
+        const val DETALLE_RECORDATORIO =
+            "Revisa tu laboratorio pendiente. Antes de entregar, prueba la app en el " +
+                "emulador, completa el README con las capturas y sube tus commits a GitHub."
     }
 }
