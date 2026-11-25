@@ -42,8 +42,9 @@ class MainActivity : ComponentActivity() {
                         PantallaCrear(vm = vm, onVolver = cerrar)
                     }
                     id != null -> {
-                        BackHandler { idSeleccionado = null }
-                        PantallaDetalle(id = id, vm = vm, onVolver = { idSeleccionado = null })
+                        val cerrar = { idSeleccionado = null; vm.reiniciarEliminacion() }
+                        BackHandler(onBack = cerrar)
+                        PantallaDetalle(id = id, vm = vm, onVolver = cerrar, onEliminado = cerrar)
                     }
                     else -> PantallaLista(
                         vm = vm,

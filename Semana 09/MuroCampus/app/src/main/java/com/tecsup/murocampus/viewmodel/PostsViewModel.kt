@@ -42,6 +42,10 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _creacion = MutableStateFlow<UiState<Post>?>(null)
     val creacion: StateFlow<UiState<Post>?> = _creacion.asStateFlow()
 
+    // ---------- Mejora 1: eliminar (Exito lleva el id borrado; null = nada pendiente) ----------
+    private val _eliminacion = MutableStateFlow<UiState<Int>?>(null)
+    val eliminacion: StateFlow<UiState<Int>?> = _eliminacion.asStateFlow()
+
     // Trabajos en curso: si llega una nueva peticion se cancela la anterior
     private var trabajoLista: Job? = null
     private var trabajoDetalle: Job? = null
@@ -104,5 +108,30 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     /** Al salir de la pantalla Crear se olvida el ultimo resultado. */
     fun reiniciarCreacion() {
         _creacion.value = null
+    }
+
+    /**
+     * Mejora 1: pide DELETE posts/{id}. JSONPlaceholder responde 200 pero no borra de verdad,
+     * asi que al tener exito se quita la publicacion de la lista ya descargada.
+     */
+    fun eliminar(id: Int) {
+        if (_eliminacion.value is UiState.Cargando) return
+        viewModelScope.launch {
+            _eliminacion.value = UiState.Cargando
+            repo.eliminar(id)
+                .onSuccess {
+                    val actual = _lista.value
+                    if (actual is UiState.Exito) {
+                        _lista.value = UiState.Exito(actual.datos.filterNot { it.id == id })
+                    }
+                    _eliminacion.value = UiState.Exito(id)
+                }
+                .onFailure { _eliminacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    /** Al salir del detalle se olvida el resultado de la eliminacion. */
+    fun reiniciarEliminacion() {
+        _eliminacion.value = null
     }
 }

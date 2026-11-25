@@ -5,6 +5,7 @@ import com.tecsup.murocampus.model.Comentario
 import com.tecsup.murocampus.model.NuevoPost
 import com.tecsup.murocampus.model.Post
 import kotlinx.coroutines.CancellationException
+import retrofit2.HttpException
 
 /**
  * Paso 5: contrato que usa el ViewModel. No sabe de Retrofit:
@@ -16,6 +17,7 @@ interface PostRepository {
     suspend fun comentarios(id: Int): Result<List<Comentario>>
     suspend fun porUsuario(userId: Int): Result<List<Post>>
     suspend fun crear(nuevo: NuevoPost): Result<Post>
+    suspend fun eliminar(id: Int): Result<Unit>
 }
 
 /** Implementacion que obtiene los datos del servicio web REST. */
@@ -32,6 +34,15 @@ class PostRepositoryRemote(private val api: PostApi) : PostRepository {
         llamar { api.porUsuario(userId) }
 
     override suspend fun crear(nuevo: NuevoPost): Result<Post> = llamar { api.crear(nuevo) }
+
+    /**
+     * Mejora 1: con Response<Unit> Retrofit no lanza la excepcion solo; hay que revisar
+     * el codigo. Si no es 2xx se lanza HttpException aqui, y llamar{} la traduce a ErrorApp.
+     */
+    override suspend fun eliminar(id: Int): Result<Unit> = llamar {
+        val respuesta = api.eliminar(id)
+        if (!respuesta.isSuccessful) throw HttpException(respuesta)
+    }
 
     /**
      * Un solo try/catch para las cinco funciones:

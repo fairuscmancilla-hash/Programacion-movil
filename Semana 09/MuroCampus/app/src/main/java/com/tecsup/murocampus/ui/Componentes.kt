@@ -25,11 +25,14 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -161,6 +164,25 @@ fun ErrorConReintento(mensaje: String, onReintentar: () -> Unit, modifier: Modif
                     Text("Reintentar", style = MaterialTheme.typography.labelLarge)
                 }
             }
+        }
+    }
+}
+
+/** Recuadro con icono y texto (exito o error). Lo usan Crear, Detalle y Editar. */
+@Composable
+fun MensajeEstado(texto: String, icono: ImageVector, fondo: Color, color: Color, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = fondo
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(icono, contentDescription = null, tint = color)
+            Spacer(Modifier.width(12.dp))
+            Text(texto, color = color, style = MaterialTheme.typography.labelLarge)
         }
     }
 }

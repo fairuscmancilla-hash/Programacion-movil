@@ -4,29 +4,40 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,15 +53,51 @@ import com.tecsup.murocampus.viewmodel.UiState
 fun PantallaDetalle(
     id: Int,
     vm: PostsViewModel,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
+    onEliminado: () -> Unit
 ) {
     val estado by vm.detalle.collectAsStateWithLifecycle()
+    val eliminacion by vm.eliminacion.collectAsStateWithLifecycle()
+    var confirmar by rememberSaveable { mutableStateOf(false) }
+
+    // Mejora 1: si el servidor confirmo el DELETE se vuelve a la lista
+    LaunchedEffect(eliminacion) {
+        if (eliminacion is UiState.Exito) onEliminado()
+    }
+
+    val eliminando = eliminacion is UiState.Cargando
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { BarraConVolver(titulo = "Detalle", onVolver = onVolver) }
+        topBar = {
+            BarraConVolver(titulo = "Detalle", onVolver = onVolver) {
+                // Solo se puede borrar cuando la publicacion ya cargo
+                if (estado is UiState.Exito) {
+                    if (eliminando) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(end = 16.dp).size(22.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        IconButton(onClick = { confirmar = true }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Eliminar publicación")
+                        }
+                    }
+                }
+            }
+        }
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
+            (eliminacion as? UiState.Error)?.let { e ->
+                MensajeEstado(
+                    texto = "No se pudo eliminar: ${e.mensaje}",
+                    icono = Icons.Filled.Warning,
+                    fondo = MaterialTheme.colorScheme.errorContainer,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp)
+                )
+            }
             when (val e = estado) {
                 is UiState.Cargando -> Cargando("Cargando publicación...")
                 is UiState.Error -> ErrorConReintento(e.mensaje, onReintentar = { vm.abrir(id) })
@@ -58,12 +105,29 @@ fun PantallaDetalle(
             }
         }
     }
+
+    if (confirmar) {
+        AlertDialog(
+            onDismissRequest = { confirmar = false },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("¿Eliminar publicación #$id?") },
+            text = { Text("Se enviará DELETE posts/$id al servidor.") },
+            confirmButton = {
+                TextButton(onClick = { confirmar = false; vm.eliminar(id) }) {
+                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmar = false }) { Text("Cancelar") }
+            }
+        )
+    }
 }
 
-/** Barra superior azul con flecha de regreso (la usan Detalle y Crear). */
+/** Barra superior azul con flecha de regreso y acciones opcionales a la derecha. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BarraConVolver(titulo: String, onVolver: () -> Unit) {
+fun BarraConVolver(titulo: String, onVolver: () -> Unit, acciones: @Composable RowScope.() -> Unit = {}) {
     TopAppBar(
         title = { Text(titulo, style = MaterialTheme.typography.titleLarge) },
         navigationIcon = {
@@ -71,10 +135,12 @@ fun BarraConVolver(titulo: String, onVolver: () -> Unit) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
             }
         },
+        actions = acciones,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary,
-            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
         )
     )
 }
