@@ -37,6 +37,7 @@ com.tecsup.murocampus/
     ├── PantallaLista.kt            chips de filtro + LazyColumn + FAB
     ├── PantallaDetalle.kt          publicación completa + Comentarios (N)
     ├── PantallaCrear.kt            formulario Título / Contenido + Publicar
+    ├── PantallaEditar.kt           Fase 2: cambia el título con PATCH
     └── theme/                      Color.kt y Theme.kt
 ```
 
@@ -72,6 +73,8 @@ PostApi (Retrofit) ── OkHttp ──► https://jsonplaceholder.typicode.com/
 | Ver sus comentarios | `GET posts/{id}/comments` | `comentarios(@Path id)` |
 | Filtrar por usuario | `GET posts?userId=2` | `porUsuario(@Query userId)` |
 | Crear una publicación | `POST posts` + JSON | `crear(@Body nuevo)` |
+| Borrar una publicación (Fase 2) | `DELETE posts/{id}` | `eliminar(@Path id): Response<Unit>` |
+| Cambiar el título (Fase 2) | `PATCH posts/{id}` + `{"title": …}` | `editarTitulo(@Path id, @Body cambio)` |
 
 ## Capturas
 
@@ -97,6 +100,23 @@ PostApi (Retrofit) ── OkHttp ──► https://jsonplaceholder.typicode.com/
 | Filtro | Elegir cada usuario | Siempre 10 publicaciones | ✅ |
 | Crear | Enviar una publicación | "Publicado con id 101" | ✅ |
 | Código | Revisar toda la carpeta `viewmodel/` (`grep -ri "retrofit\|HttpException\|PostApi" viewmodel/`) | Sin coincidencias: `HttpException` se traduce en `data/ErrorApp.kt` | ✅ |
+
+## Fase 2 · Mejoras con IA (rama `mejora-ia-semana09`)
+
+| Mejora | Qué hace | Capas que cambian |
+|---|---|---|
+| Borrar publicación | Papelera en el detalle, diálogo de confirmación y `DELETE posts/{id}`. El Repository revisa el código con `Response<Unit>` y, si no es 2xx, lanza `HttpException`, que se traduce a `ErrorApp` | API + Repository + ViewModel + View |
+| Editar título | Lápiz en el detalle abre **Editar título**, que envía `PATCH posts/{id}` solo con el título y muestra la respuesta del servidor. El detalle y la lista se actualizan con esa respuesta | Modelo + API + Repository + ViewModel + View |
+| Búsqueda | Campo "Buscar por título" debajo de los chips. Filtra lo ya descargado (sin pedir nada a la red) y se combina con el filtro por usuario | ViewModel + View |
+
+JSONPlaceholder no guarda cambios: el DELETE y el PATCH responden 200, pero al recargar vuelven los datos originales.
+Por eso el ViewModel aplica el resultado sobre la lista ya descargada.
+
+| Eliminar | Error al eliminar | Editar título | Búsqueda |
+|---|---|---|---|
+| ![Eliminar](docs/capturas/07-eliminar.png) | ![Error al eliminar](docs/capturas/08-eliminar-error.png) | ![Editar](docs/capturas/09-editar.png) | ![Búsqueda](docs/capturas/10-busqueda.png) |
+
+Los prompts usados, lo que respondió la IA y lo que se corrigió están en [PROMPTS.md](PROMPTS.md).
 
 ## Para pensar
 
