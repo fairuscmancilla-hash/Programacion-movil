@@ -65,6 +65,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
+    val avisos by vm.avisos.collectAsState()
 
     // El ViewModel emite el evento; la pantalla (que sí tiene Context) muestra la notificación.
     LaunchedEffect(Unit) {
@@ -206,9 +207,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             }
 
             // ---------- Tarjeta: Historial (Paso 7) ----------
-            TarjetaSeccion(titulo = "Historial") {
-                Pendiente("TODO Paso 7: lista de avisos (HistorialAvisos)")
-            }
+            HistorialAvisos(avisos)
 
             Spacer(Modifier.height(8.dp))
         }
@@ -262,15 +261,5 @@ private fun EtiquetaPermiso(permiso: PermisoUi) {
         modifier = Modifier
             .background(fondo, RoundedCornerShape(50))
             .padding(horizontal = 12.dp, vertical = 4.dp)
-    )
-}
-
-// Texto temporal para las funciones que aún no se implementan.
-@Composable
-private fun Pendiente(texto: String) {
-    Text(
-        texto,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
