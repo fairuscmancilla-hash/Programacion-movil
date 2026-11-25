@@ -6,28 +6,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tecsup.murocampus.ui.PantallaLista
 import com.tecsup.murocampus.ui.theme.MuroCampusTheme
+import com.tecsup.murocampus.viewmodel.PostsViewModel
+import com.tecsup.murocampus.viewmodel.PostsViewModelFactory
 
-// [E] Proyecto base: solo abre la app con el tema. Las pantallas se agregan en los pasos 6 a 9.
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Iconos claros en la barra de estado (la barra superior es azul oscuro)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         super.onCreate(savedInstanceState)
 
         setContent {
             MuroCampusTheme {
-                Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text("MuroCampus", style = MaterialTheme.typography.titleLarge)
-                    }
-                }
+                // Un solo ViewModel compartido por las tres pantallas (sobrevive a la rotacion)
+                val vm: PostsViewModel = viewModel(factory = PostsViewModelFactory())
+
+                // Paso 6: por ahora solo la lista (el detalle llega en el Paso 7)
+                PantallaLista(vm = vm, onAbrir = { })
             }
         }
     }
