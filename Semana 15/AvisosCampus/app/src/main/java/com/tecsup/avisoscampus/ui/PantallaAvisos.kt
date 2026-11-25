@@ -20,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -121,7 +122,19 @@ fun PantallaAvisos(vm: AvisosViewModel) {
 
             // ---------- Tarjeta: Avisos (Paso 3) ----------
             TarjetaSeccion(titulo = "Avisos") {
-                Pendiente("TODO Paso 3: botón Mostrar aviso")
+                Text(
+                    "Muestra la notificación «Tarea lista» al instante.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Button(
+                    onClick = { vm.avisarAhora() },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary
+                    )
+                ) { Text("Mostrar aviso") }
             }
 
             // ---------- Tarjeta: Recordatorio (Paso 5) ----------

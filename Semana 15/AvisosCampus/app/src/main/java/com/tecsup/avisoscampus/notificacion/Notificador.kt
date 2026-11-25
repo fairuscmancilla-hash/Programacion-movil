@@ -1,12 +1,16 @@
 package com.tecsup.avisoscampus.notificacion
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.tecsup.avisoscampus.R
 import com.tecsup.avisoscampus.model.Aviso
 
 object Notificador {
@@ -35,10 +39,23 @@ object Notificador {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    // Paso 3: construye y muestra la notificación; devuelve false si no hay permiso.
+    @SuppressLint("MissingPermission")
     fun mostrar(context: Context, aviso: Aviso): Boolean {
-        // TODO 1: si no tienePermiso(context) -> return false
-        // TODO 2: construir la notificacion con NotificationCompat.Builder
-        // TODO 3: NotificationManagerCompat.from(context).notify(aviso.id, ...)
+        // 1. Sin permiso no se muestra nada, pero tampoco se lanza error
+        if (!tienePermiso(context)) return false
+
+        // 2. Construir la notificación
+        val notificacion = NotificationCompat.Builder(context, CANAL)
+            .setSmallIcon(R.drawable.ic_notificacion)
+            .setContentTitle(aviso.titulo)
+            .setContentText(aviso.texto)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+
+        // 3. El id del aviso hace que cada notificación sea distinta
+        NotificationManagerCompat.from(context).notify(aviso.id, notificacion)
         return true
     }
 }
