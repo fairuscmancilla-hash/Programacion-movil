@@ -4,12 +4,15 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.tecsup.avisoscampus.MainActivity
 import com.tecsup.avisoscampus.R
 import com.tecsup.avisoscampus.model.Aviso
 
@@ -39,11 +42,20 @@ object Notificador {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    // Paso 3: construye y muestra la notificación; devuelve false si no hay permiso.
+    // Pasos 3 y 4: construye y muestra la notificación; devuelve false si no hay permiso.
     @SuppressLint("MissingPermission")
     fun mostrar(context: Context, aviso: Aviso): Boolean {
         // 1. Sin permiso no se muestra nada, pero tampoco se lanza error
         if (!tienePermiso(context)) return false
+
+        // Paso 4: al tocar la notificación se abre MainActivity
+        val intent = Intent(context, MainActivity::class.java)
+        val pendiente = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
 
         // 2. Construir la notificación
         val notificacion = NotificationCompat.Builder(context, CANAL)
@@ -51,6 +63,7 @@ object Notificador {
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendiente)
             .setAutoCancel(true)
             .build()
 
