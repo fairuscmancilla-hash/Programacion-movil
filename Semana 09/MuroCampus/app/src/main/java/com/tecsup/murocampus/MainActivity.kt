@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tecsup.murocampus.ui.PantallaCrear
 import com.tecsup.murocampus.ui.PantallaDetalle
 import com.tecsup.murocampus.ui.PantallaLista
 import com.tecsup.murocampus.ui.theme.MuroCampusTheme
@@ -29,11 +30,17 @@ class MainActivity : ComponentActivity() {
                 // Un solo ViewModel compartido por las tres pantallas (sobrevive a la rotacion)
                 val vm: PostsViewModel = viewModel(factory = PostsViewModelFactory())
 
-                // Navegacion simple: null = lista; un id = detalle
+                // Navegacion simple: null = lista; un id = detalle; creando = formulario
                 var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
+                var creando by rememberSaveable { mutableStateOf(false) }
 
                 val id = idSeleccionado
                 when {
+                    creando -> {
+                        val cerrar = { creando = false; vm.reiniciarCreacion() }
+                        BackHandler(onBack = cerrar)
+                        PantallaCrear(vm = vm, onVolver = cerrar)
+                    }
                     id != null -> {
                         BackHandler { idSeleccionado = null }
                         PantallaDetalle(id = id, vm = vm, onVolver = { idSeleccionado = null })
@@ -43,7 +50,8 @@ class MainActivity : ComponentActivity() {
                         onAbrir = { postId ->
                             idSeleccionado = postId
                             vm.abrir(postId)   // se pide aqui para no recargar al rotar
-                        }
+                        },
+                        onCrear = { creando = true }
                     )
                 }
             }

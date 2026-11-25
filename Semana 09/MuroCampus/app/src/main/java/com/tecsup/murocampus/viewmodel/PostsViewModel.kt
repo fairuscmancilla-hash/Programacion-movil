@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tecsup.murocampus.data.PostRepository
 import com.tecsup.murocampus.model.Comentario
+import com.tecsup.murocampus.model.NuevoPost
 import com.tecsup.murocampus.model.Post
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -36,6 +37,10 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     // ---------- Paso 7: detalle ----------
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle: StateFlow<UiState<DetalleUi>> = _detalle.asStateFlow()
+
+    // ---------- Paso 9: crear (null = aun no se envio) ----------
+    private val _creacion = MutableStateFlow<UiState<Post>?>(null)
+    val creacion: StateFlow<UiState<Post>?> = _creacion.asStateFlow()
 
     // Trabajos en curso: si llega una nueva peticion se cancela la anterior
     private var trabajoLista: Job? = null
@@ -82,5 +87,22 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
                 UiState.Exito(DetalleUi(resPost.getOrThrow(), resComentarios.getOrThrow()))
             }
         }
+    }
+
+    /** Paso 9: envia un NuevoPost (userId = 1) y guarda la respuesta. */
+    fun publicar(titulo: String, texto: String) {
+        if (titulo.isBlank() || texto.isBlank()) return
+        if (_creacion.value is UiState.Cargando) return
+        viewModelScope.launch {
+            _creacion.value = UiState.Cargando
+            repo.crear(NuevoPost(userId = 1, title = titulo.trim(), body = texto.trim()))
+                .onSuccess { _creacion.value = UiState.Exito(it) }
+                .onFailure { _creacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    /** Al salir de la pantalla Crear se olvida el ultimo resultado. */
+    fun reiniciarCreacion() {
+        _creacion.value = null
     }
 }
